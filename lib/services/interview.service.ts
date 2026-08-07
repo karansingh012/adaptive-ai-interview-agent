@@ -87,6 +87,102 @@ type StartInterviewResult = {
 };
 
 export class InterviewService {
+  /**
+   * Submit an answer to an interview question and get the next question or follow-up.
+   * @param sessionId - The interview session ID
+   * @param answer - The candidate's answer to the current question
+   * @returns The updated session state, next question (if any), and evaluation results
+   */
+  async submitAnswer(
+    sessionId: string,
+    questionId: string,
+    answer: string
+  ): Promise<{
+    sessionId: string;
+    evaluation: {
+      score: number;
+      feedback: string;
+      followUp?: InterviewQuestion;
+      isFinalQuestion: boolean;
+    };
+    nextQuestion?: InterviewQuestion;
+    currentQuestionNumber: number;
+    totalQuestions: number;
+    status: InterviewSessionStatus;
+  }> {
+    // Simulate session loading (in-memory or persistent store)
+    // For this mock, we'll just reconstruct a plausible session from sessionId
+    // In a real implementation, sessions would be persisted
+    const candidateId = sessionId.split("-")[1] ? `cand-${sessionId.split("-")[1]}` : "cand-unknown";
+    const candidate = await this.loadCandidate(candidateId);
+    const curriculum = await this.loadCurriculum();
+    const totalQuestions = curriculum.length;
+
+    // Infer current question index from sessionId timestamp (not robust, but for mock/demo)
+    let currentQuestionIndex = 0;
+    if (sessionId.includes("q")) {
+      const match = sessionId.match(/q(\d+)/);
+      if (match) currentQuestionIndex = parseInt(match[1], 10);
+    }
+    // For demo, just increment by one
+    currentQuestionIndex = Math.min(currentQuestionIndex + 1, totalQuestions - 1);
+
+    // Evaluate answer (mock)
+    const score = Math.floor(Math.random() * 5) + 1;
+    const feedback = score > 3
+      ? "Great answer! You demonstrated strong understanding."
+      : "Consider elaborating more on key concepts next time.";
+
+    // Follow-up logic (mock): if score < 4 and follow-ups remain, generate a follow-up
+    let followUp: InterviewQuestion | undefined = undefined;
+    const isFinalQuestion = currentQuestionIndex >= totalQuestions - 1;
+    if (score < 4 && !isFinalQuestion) {
+      const nextDay = curriculum[currentQuestionIndex];
+      followUp = {
+        id: `followup-${nextDay.day}`,
+        prompt: `Can you clarify or expand on your answer regarding ${nextDay.topic}?`,
+        difficulty: this.mapDifficulty(nextDay.difficulty),
+        topic: {
+          id: `topic-${nextDay.day}`,
+          name: nextDay.topic,
+          category: "ai-engineering",
+          description: nextDay.learningObjectives[0],
+        },
+        expectedConcepts: nextDay.learningObjectives.map((objective, index) => ({
+          id: `concept-${nextDay.day}-${index + 1}`,
+          name: objective,
+        })),
+        followUpSupport: {
+          enabled: false,
+          maxFollowUps: 0,
+          allowClarification: false,
+        },
+        isAdaptive: false,
+        createdAt: new Date().toISOString(),
+      };
+    }
+
+    // Next question logic
+    let nextQuestion: InterviewQuestion | undefined = undefined;
+    if (!isFinalQuestion && !followUp) {
+      const nextDay = curriculum[currentQuestionIndex];
+      nextQuestion = this.buildFirstQuestion(nextDay);
+    }
+
+    return {
+      sessionId,
+      evaluation: {
+        score,
+        feedback,
+        followUp,
+        isFinalQuestion,
+      },
+      nextQuestion,
+      currentQuestionNumber: currentQuestionIndex + 1,
+      totalQuestions,
+      status: isFinalQuestion ? InterviewSessionStatus.Completed : InterviewSessionStatus.Active,
+    };
+  }
   async startInterview(candidateId: string): Promise<StartInterviewResult> {
     const normalizedCandidateId = this.normalizeCandidateId(candidateId);
     const candidate = await this.loadCandidate(normalizedCandidateId);
@@ -109,6 +205,7 @@ export class InterviewService {
       totalQuestions: curriculum.length,
     };
   }
+
 
   private normalizeCandidateId(candidateId: string): string {
     const trimmedCandidateId = candidateId.trim();
