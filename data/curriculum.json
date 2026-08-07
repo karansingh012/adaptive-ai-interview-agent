@@ -1,16 +1,84 @@
 {
-  "roles": [
+  "curriculum": [
     {
-      "name": "Senior Frontend Engineer",
-      "questions": [
-        {
-          "id": "q1",
-          "category": "architecture",
-          "prompt": "Describe how you would structure a scalable frontend application.",
-          "difficulty": "medium",
-          "expectedSkills": ["system design", "component design"]
-        }
-      ]
+      "day": 1,
+      "topic": "Prompt Engineering",
+      "learningObjectives": [
+        "Understand prompt structure and context framing",
+        "Compare zero-shot and few-shot prompting"
+      ],
+      "toolsUsed": ["OpenAI API", "LangChain"],
+      "difficulty": "beginner"
+    },
+    {
+      "day": 2,
+      "topic": "Embeddings",
+      "learningObjectives": [
+        "Explain semantic vector representations",
+        "Understand embedding quality and dimensionality"
+      ],
+      "toolsUsed": ["Sentence Transformers", "FAISS"],
+      "difficulty": "beginner"
+    },
+    {
+      "day": 3,
+      "topic": "Vector Databases",
+      "learningObjectives": [
+        "Understand nearest-neighbor search",
+        "Compare vector indexing strategies"
+      ],
+      "toolsUsed": ["Pinecone", "Weaviate"],
+      "difficulty": "intermediate"
+    },
+    {
+      "day": 4,
+      "topic": "Retrieval-Augmented Generation (RAG)",
+      "learningObjectives": [
+        "Design retrieval pipelines for LLM applications",
+        "Evaluate chunking and ranking strategies"
+      ],
+      "toolsUsed": ["LlamaIndex", "Azure AI Search"],
+      "difficulty": "intermediate"
+    },
+    {
+      "day": 5,
+      "topic": "Agentic AI",
+      "learningObjectives": [
+        "Describe tool use and planning loops",
+        "Understand state management in agent workflows"
+      ],
+      "toolsUsed": ["LangGraph", "AutoGen"],
+      "difficulty": "intermediate"
+    },
+    {
+      "day": 6,
+      "topic": "Model Context Protocol (MCP)",
+      "learningObjectives": [
+        "Explain context sharing across tools and agents",
+        "Understand interoperability patterns"
+      ],
+      "toolsUsed": ["MCP Servers", "Custom Tool Connectors"],
+      "difficulty": "advanced"
+    },
+    {
+      "day": 7,
+      "topic": "AI Deployment",
+      "learningObjectives": [
+        "Deploy model-backed services safely",
+        "Understand latency, cost, and observability tradeoffs"
+      ],
+      "toolsUsed": ["Docker", "Kubernetes", "FastAPI"],
+      "difficulty": "advanced"
+    },
+    {
+      "day": 8,
+      "topic": "Production AI Systems",
+      "learningObjectives": [
+        "Design monitoring and evaluation pipelines",
+        "Understand guardrails, fallback strategies, and human review"
+      ],
+      "toolsUsed": ["OpenTelemetry", "Prometheus", "Grafana"],
+      "difficulty": "advanced"
     }
   ]
 }

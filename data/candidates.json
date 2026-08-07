@@ -2,12 +2,327 @@
   "candidates": [
     {
       "id": "cand-001",
-      "name": "Asha Patel",
-      "role": "Senior Frontend Engineer",
-      "experienceYears": 6,
-      "skills": ["React", "TypeScript", "Next.js"],
-      "strengths": ["System design", "Communication"],
-      "developmentAreas": ["Testing depth", "Performance tuning"]
+      "name": "Maya Chen",
+      "email": "maya.chen@example.com",
+      "completedCurriculumDays": [
+        {
+          "day": 1,
+          "topic": "Prompt Engineering",
+          "status": "completed",
+          "completedAt": "2026-07-20T10:00:00.000Z"
+        },
+        {
+          "day": 2,
+          "topic": "Embeddings",
+          "status": "completed",
+          "completedAt": "2026-07-21T10:00:00.000Z"
+        }
+      ],
+      "skippedCurriculumDays": ["day-3"],
+      "learningSignals": [
+        {
+          "type": "answer_quality",
+          "value": 0.62,
+          "observedAt": "2026-07-21T11:30:00.000Z",
+          "source": "self_assessment"
+        },
+        {
+          "type": "consistency",
+          "value": 0.71,
+          "observedAt": "2026-07-21T11:30:00.000Z",
+          "source": "study_log"
+        }
+      ],
+      "profile": {
+        "id": "cand-001",
+        "fullName": "Maya Chen",
+        "email": "maya.chen@example.com",
+        "role": "Junior ML Engineer",
+        "experienceYears": 1,
+        "completedCurriculumDays": [
+          {
+            "day": 1,
+            "topic": "Prompt Engineering",
+            "status": "completed",
+            "completedAt": "2026-07-20T10:00:00.000Z"
+          },
+          {
+            "day": 2,
+            "topic": "Embeddings",
+            "status": "completed",
+            "completedAt": "2026-07-21T10:00:00.000Z"
+          }
+        ],
+        "skippedCurriculumDays": ["day-3"],
+        "learningSignals": [
+          {
+            "type": "answer_quality",
+            "value": 0.62,
+            "observedAt": "2026-07-21T11:30:00.000Z",
+            "source": "self_assessment"
+          },
+          {
+            "type": "consistency",
+            "value": 0.71,
+            "observedAt": "2026-07-21T11:30:00.000Z",
+            "source": "study_log"
+          }
+        ],
+        "skillLevels": [
+          {
+            "area": "Prompt Engineering",
+            "level": "beginner",
+            "confidence": 0.4,
+            "lastAssessedAt": "2026-07-21T11:30:00.000Z"
+          }
+        ],
+        "createdAt": "2026-07-20T09:00:00.000Z",
+        "updatedAt": "2026-07-21T11:30:00.000Z"
+      },
+      "skills": [
+        {
+          "area": "Prompt Engineering",
+          "level": "beginner",
+          "confidence": 0.4
+        },
+        {
+          "area": "Embeddings",
+          "level": "beginner",
+          "confidence": 0.35
+        }
+      ]
+    },
+    {
+      "id": "cand-002",
+      "name": "Daniel Brooks",
+      "email": "daniel.brooks@example.com",
+      "completedCurriculumDays": [
+        {
+          "day": 1,
+          "topic": "Prompt Engineering",
+          "status": "completed",
+          "completedAt": "2026-07-18T09:00:00.000Z"
+        },
+        {
+          "day": 2,
+          "topic": "Embeddings",
+          "status": "completed",
+          "completedAt": "2026-07-19T09:00:00.000Z"
+        },
+        {
+          "day": 3,
+          "topic": "Vector Databases",
+          "status": "completed",
+          "completedAt": "2026-07-20T09:00:00.000Z"
+        }
+      ],
+      "skippedCurriculumDays": ["day-6"],
+      "learningSignals": [
+        {
+          "type": "answer_quality",
+          "value": 0.78,
+          "observedAt": "2026-07-20T10:00:00.000Z",
+          "source": "mock_interview"
+        },
+        {
+          "type": "topic_interest",
+          "value": 0.84,
+          "observedAt": "2026-07-20T10:00:00.000Z",
+          "source": "behavioral_signal"
+        }
+      ],
+      "profile": {
+        "id": "cand-002",
+        "fullName": "Daniel Brooks",
+        "email": "daniel.brooks@example.com",
+        "role": "Software Engineer",
+        "experienceYears": 3,
+        "completedCurriculumDays": [
+          {
+            "day": 1,
+            "topic": "Prompt Engineering",
+            "status": "completed",
+            "completedAt": "2026-07-18T09:00:00.000Z"
+          },
+          {
+            "day": 2,
+            "topic": "Embeddings",
+            "status": "completed",
+            "completedAt": "2026-07-19T09:00:00.000Z"
+          },
+          {
+            "day": 3,
+            "topic": "Vector Databases",
+            "status": "completed",
+            "completedAt": "2026-07-20T09:00:00.000Z"
+          }
+        ],
+        "skippedCurriculumDays": ["day-6"],
+        "learningSignals": [
+          {
+            "type": "answer_quality",
+            "value": 0.78,
+            "observedAt": "2026-07-20T10:00:00.000Z",
+            "source": "mock_interview"
+          },
+          {
+            "type": "topic_interest",
+            "value": 0.84,
+            "observedAt": "2026-07-20T10:00:00.000Z",
+            "source": "behavioral_signal"
+          }
+        ],
+        "skillLevels": [
+          {
+            "area": "Vector Databases",
+            "level": "intermediate",
+            "confidence": 0.68,
+            "lastAssessedAt": "2026-07-20T10:00:00.000Z"
+          }
+        ],
+        "createdAt": "2026-07-18T08:30:00.000Z",
+        "updatedAt": "2026-07-20T10:00:00.000Z"
+      },
+      "skills": [
+        {
+          "area": "Prompt Engineering",
+          "level": "intermediate",
+          "confidence": 0.68
+        },
+        {
+          "area": "Vector Databases",
+          "level": "intermediate",
+          "confidence": 0.72
+        }
+      ]
+    },
+    {
+      "id": "cand-003",
+      "name": "Sofia Alvarez",
+      "email": "sofia.alvarez@example.com",
+      "completedCurriculumDays": [
+        {
+          "day": 1,
+          "topic": "Prompt Engineering",
+          "status": "completed",
+          "completedAt": "2026-07-15T09:30:00.000Z"
+        },
+        {
+          "day": 2,
+          "topic": "Embeddings",
+          "status": "completed",
+          "completedAt": "2026-07-16T09:30:00.000Z"
+        },
+        {
+          "day": 3,
+          "topic": "Vector Databases",
+          "status": "completed",
+          "completedAt": "2026-07-17T09:30:00.000Z"
+        },
+        {
+          "day": 4,
+          "topic": "RAG",
+          "status": "completed",
+          "completedAt": "2026-07-18T09:30:00.000Z"
+        },
+        {
+          "day": 5,
+          "topic": "Agentic AI",
+          "status": "completed",
+          "completedAt": "2026-07-19T09:30:00.000Z"
+        }
+      ],
+      "skippedCurriculumDays": [],
+      "learningSignals": [
+        {
+          "type": "answer_quality",
+          "value": 0.91,
+          "observedAt": "2026-07-19T10:30:00.000Z",
+          "source": "mock_interview"
+        },
+        {
+          "type": "consistency",
+          "value": 0.9,
+          "observedAt": "2026-07-19T10:30:00.000Z",
+          "source": "study_log"
+        }
+      ],
+      "profile": {
+        "id": "cand-003",
+        "fullName": "Sofia Alvarez",
+        "email": "sofia.alvarez@example.com",
+        "role": "Principal AI Engineer",
+        "experienceYears": 7,
+        "completedCurriculumDays": [
+          {
+            "day": 1,
+            "topic": "Prompt Engineering",
+            "status": "completed",
+            "completedAt": "2026-07-15T09:30:00.000Z"
+          },
+          {
+            "day": 2,
+            "topic": "Embeddings",
+            "status": "completed",
+            "completedAt": "2026-07-16T09:30:00.000Z"
+          },
+          {
+            "day": 3,
+            "topic": "Vector Databases",
+            "status": "completed",
+            "completedAt": "2026-07-17T09:30:00.000Z"
+          },
+          {
+            "day": 4,
+            "topic": "RAG",
+            "status": "completed",
+            "completedAt": "2026-07-18T09:30:00.000Z"
+          },
+          {
+            "day": 5,
+            "topic": "Agentic AI",
+            "status": "completed",
+            "completedAt": "2026-07-19T09:30:00.000Z"
+          }
+        ],
+        "skippedCurriculumDays": [],
+        "learningSignals": [
+          {
+            "type": "answer_quality",
+            "value": 0.91,
+            "observedAt": "2026-07-19T10:30:00.000Z",
+            "source": "mock_interview"
+          },
+          {
+            "type": "consistency",
+            "value": 0.9,
+            "observedAt": "2026-07-19T10:30:00.000Z",
+            "source": "study_log"
+          }
+        ],
+        "skillLevels": [
+          {
+            "area": "RAG",
+            "level": "advanced",
+            "confidence": 0.92,
+            "lastAssessedAt": "2026-07-19T10:30:00.000Z"
+          }
+        ],
+        "createdAt": "2026-07-15T08:45:00.000Z",
+        "updatedAt": "2026-07-19T10:30:00.000Z"
+      },
+      "skills": [
+        {
+          "area": "RAG",
+          "level": "advanced",
+          "confidence": 0.92
+        },
+        {
+          "area": "Agentic AI",
+          "level": "advanced",
+          "confidence": 0.88
+        }
+      ]
     }
   ]
 }
