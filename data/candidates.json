@@ -1,0 +1,13 @@
+{
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "Asha Patel",
+      "role": "Senior Frontend Engineer",
+      "experienceYears": 6,
+      "skills": ["React", "TypeScript", "Next.js"],
+      "strengths": ["System design", "Communication"],
+      "developmentAreas": ["Testing depth", "Performance tuning"]
+    }
+  ]
+}

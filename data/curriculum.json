@@ -1,0 +1,16 @@
+{
+  "roles": [
+    {
+      "name": "Senior Frontend Engineer",
+      "questions": [
+        {
+          "id": "q1",
+          "category": "architecture",
+          "prompt": "Describe how you would structure a scalable frontend application.",
+          "difficulty": "medium",
+          "expectedSkills": ["system design", "component design"]
+        }
+      ]
+    }
+  ]
+}
