@@ -12,6 +12,13 @@ export type GeminiEvaluation = {
   confidence: number;
 };
 
+export type GeminiGeneratedQuestion = {
+  prompt: string;
+  difficulty: "easy" | "medium" | "hard";
+  expectedConcepts: string[];
+  reason: string;
+};
+
 class GeminiEvaluationError extends Error {
   diagnostics: ErrorDiagnostics;
 
@@ -72,6 +79,62 @@ export function getErrorDiagnostics(error: unknown): ErrorDiagnostics {
 }
 
 export class GeminiService {
+  async generateQuestionJson(prompt: string): Promise<GeminiGeneratedQuestion> {
+    const apiKey =
+      process.env.GOOGLE_GENERATIVE_AI_API_KEY ??
+      process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      throw new GeminiEvaluationError("Missing API key: set GOOGLE_GENERATIVE_AI_API_KEY or GEMINI_API_KEY", {
+        attemptedModels: [...GEMINI_MODELS],
+      });
+    }
+
+    const { model, result } = await this.generateWithFallback(apiKey, {
+      contents: prompt,
+      responseMimeType: "application/json",
+      responseSchema: this.questionSchema(),
+    });
+    console.log("[GeminiService] Question generation model succeeded:", model);
+
+    const text = result.text ?? "";
+    console.log("[GeminiService] Question generation raw response:", text);
+
+    if (!text.trim()) {
+      throw new GeminiEvaluationError("Invalid Gemini response: Gemini returned an empty question response");
+    }
+
+    return this.normalizeGeneratedQuestion(this.parseResponse(text));
+  }
+
+  async generateFollowUpQuestionJson(prompt: string): Promise<GeminiGeneratedQuestion> {
+    const apiKey =
+      process.env.GOOGLE_GENERATIVE_AI_API_KEY ??
+      process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      throw new GeminiEvaluationError("Missing API key: set GOOGLE_GENERATIVE_AI_API_KEY or GEMINI_API_KEY", {
+        attemptedModels: [...GEMINI_MODELS],
+      });
+    }
+
+    const { model, result } = await this.generateWithFallback(apiKey, {
+      contents: prompt,
+      responseMimeType: "application/json",
+      responseSchema: this.questionSchema(),
+    });
+    console.log("[GeminiService] Follow-up question generation model succeeded:", model);
+
+    const text = result.text ?? "";
+    console.log("[GeminiService] Follow-up question generation raw response:", text);
+
+    if (!text.trim()) {
+      throw new GeminiEvaluationError("Invalid Gemini response: Gemini returned an empty follow-up question response");
+    }
+
+    return this.normalizeGeneratedQuestion(this.parseResponse(text));
+  }
+
   async evaluateAnswer(question: InterviewQuestion, answer: string, expectedConcepts: string[]): Promise<GeminiEvaluation> {
     const apiKey =
       process.env.GOOGLE_GENERATIVE_AI_API_KEY ??
@@ -271,6 +334,25 @@ Rules:
     };
   }
 
+  private questionSchema() {
+    return {
+      type: Type.OBJECT,
+      properties: {
+        prompt: { type: Type.STRING },
+        difficulty: {
+          type: Type.STRING,
+          enum: ["easy", "medium", "hard"],
+        },
+        expectedConcepts: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING },
+        },
+        reason: { type: Type.STRING },
+      },
+      required: ["prompt", "difficulty", "expectedConcepts", "reason"],
+    };
+  }
+
   private parseResponse(text: string): unknown {
     try {
       const cleaned = text
@@ -324,6 +406,29 @@ Rules:
       strengths: this.normalizeStringArray(data.strengths),
       improvements: this.normalizeStringArray(data.improvements),
       confidence: this.clamp(confidence, 0, 1),
+    };
+  }
+
+  private normalizeGeneratedQuestion(parsed: unknown): GeminiGeneratedQuestion {
+    if (!parsed || typeof parsed !== "object") {
+      throw new GeminiEvaluationError("Invalid Gemini response: expected a question JSON object");
+    }
+
+    const data = parsed as Record<string, unknown>;
+    const difficulty = typeof data.difficulty === "string" ? data.difficulty.toLowerCase() : "";
+
+    if (
+      typeof data.prompt !== "string" ||
+      !["easy", "medium", "hard"].includes(difficulty)
+    ) {
+      throw new GeminiEvaluationError("Invalid Gemini response: missing prompt or difficulty");
+    }
+
+    return {
+      prompt: data.prompt.trim(),
+      difficulty: difficulty as GeminiGeneratedQuestion["difficulty"],
+      expectedConcepts: this.normalizeStringArray(data.expectedConcepts),
+      reason: typeof data.reason === "string" ? data.reason : "Generated from candidate and curriculum context.",
     };
   }
 

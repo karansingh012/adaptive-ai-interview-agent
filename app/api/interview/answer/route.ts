@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { interviewService } from "@/lib/services/interview.service";
 import { getErrorDiagnostics } from "@/lib/services/gemini.service";
+import type { InterviewQuestionRecord } from "@/types/interview";
+import type { InterviewQuestion } from "@/types/question";
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +10,9 @@ export async function POST(request: NextRequest) {
       sessionId?: string;
       questionId?: string;
       answer?: string;
+      currentQuestion?: InterviewQuestion;
+      previousQuestions?: InterviewQuestion[];
+      questionHistory?: InterviewQuestionRecord[];
     } | null;
 
     if (
@@ -30,7 +35,14 @@ export async function POST(request: NextRequest) {
     console.log("========== STEP 2 ==========");
     console.log("API request body", body);
     console.log("Received:", body.questionId);
-    const response = await interviewService.submitAnswer(body.sessionId, body.questionId, body.answer);
+    const response = await interviewService.submitAnswer(
+      body.sessionId,
+      body.questionId,
+      body.answer,
+      isInterviewQuestion(body.currentQuestion) ? body.currentQuestion : undefined,
+      Array.isArray(body.previousQuestions) ? body.previousQuestions.filter(isInterviewQuestion) : [],
+      Array.isArray(body.questionHistory) ? body.questionHistory.filter(isInterviewQuestionRecord) : [],
+    );
 
     console.log("[Answer API] Response:", response);
     return NextResponse.json(response, { status: 200 });
@@ -72,6 +84,30 @@ export async function POST(request: NextRequest) {
       { status: getStatusCode(errorMessage) },
     );
   }
+}
+
+function isInterviewQuestionRecord(value: unknown): value is InterviewQuestionRecord {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const record = value as Partial<InterviewQuestionRecord>;
+
+  return typeof record.questionId === "string" &&
+    typeof record.askedAt === "string" &&
+    (!record.question || isInterviewQuestion(record.question));
+}
+
+function isInterviewQuestion(value: unknown): value is InterviewQuestion {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const question = value as Partial<InterviewQuestion>;
+
+  return typeof question.id === "string" &&
+    typeof question.prompt === "string" &&
+    Array.isArray(question.expectedConcepts);
 }
 
 function getStatusCode(message: string) {

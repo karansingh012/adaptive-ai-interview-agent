@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { Container } from "@/components/layout/Container";
+import type { InterviewQuestionRecord } from "@/types/interview";
+import type { InterviewQuestion } from "@/types/question";
 
 
 type InterviewSessionData = {
@@ -14,14 +16,9 @@ type InterviewSessionData = {
     fullName: string;
     role: string;
   };
-  firstQuestion: {
-    id: string;
-    prompt: string;
-  };
-  currentQuestion?: {
-    id: string;
-    prompt: string;
-  };
+  firstQuestion: InterviewQuestion;
+  currentQuestion?: InterviewQuestion;
+  questionHistory?: Array<InterviewQuestion | InterviewQuestionRecord>;
   questionId?: string;
   currentQuestionNumber: number;
   totalQuestions: number;
@@ -52,10 +49,12 @@ function SessionPageContent() {
         try {
           const parsed = JSON.parse(stored) as InterviewSessionData;
           const currentQuestion = parsed.currentQuestion ?? parsed.firstQuestion;
+          const questionHistory = normalizeQuestionHistory(parsed.questionHistory, currentQuestion);
           const normalizedSession = {
             ...parsed,
             evaluations: Array.isArray(parsed.evaluations) ? parsed.evaluations : [],
             currentQuestion,
+            questionHistory,
             questionId: currentQuestion.id,
           };
           console.log("Parsed session:", parsed);
@@ -85,6 +84,9 @@ function SessionPageContent() {
       sessionId: session.sessionId,
       questionId: currentQuestion.id,
       answer,
+      currentQuestion,
+      previousQuestions: questionsFromHistory(session.questionHistory),
+      questionHistory: session.questionHistory ?? [],
     };
 
     console.log("========== STEP 1 ==========");
@@ -125,6 +127,12 @@ function SessionPageContent() {
     };
 
     const updatedEvaluations = [...(session.evaluations ?? []), newEvaluation];
+    const updatedAnsweredHistory = markQuestionAnswered(
+      session.questionHistory ?? [],
+      currentQuestion,
+      answer,
+      newEvaluation,
+    );
 
     console.log("Answer submitted successfully");
     console.log("Updating UI:", data.nextQuestion?.id);
@@ -140,6 +148,7 @@ function SessionPageContent() {
         JSON.stringify({
           ...data,
           evaluations: updatedEvaluations,
+          questionHistory: updatedAnsweredHistory,
         }),
       );
       sessionStorage.removeItem("interview-session");
@@ -151,6 +160,12 @@ function SessionPageContent() {
       ...session,
       evaluations: updatedEvaluations,
       currentQuestion: data.nextQuestion ?? currentQuestion,
+      questionHistory: data.nextQuestion
+        ? [
+            ...updatedAnsweredHistory,
+            createQuestionRecord(data.nextQuestion),
+          ]
+        : updatedAnsweredHistory,
       questionId: data.nextQuestion?.id ?? currentQuestion.id,
       currentQuestionNumber: data.currentQuestionNumber ?? session.currentQuestionNumber,
     };
@@ -250,6 +265,81 @@ function SessionPageContent() {
       </main>
     </div>
   );
+}
+
+function normalizeQuestionHistory(
+  history: Array<InterviewQuestion | InterviewQuestionRecord> | undefined,
+  currentQuestion: InterviewQuestion,
+): InterviewQuestionRecord[] {
+  if (!Array.isArray(history) || history.length === 0) {
+    return [createQuestionRecord(currentQuestion)];
+  }
+
+  const records = history.map((item) => {
+    if ("questionId" in item) {
+      return item;
+    }
+
+    return createQuestionRecord(item);
+  });
+
+  if (!records.some((record) => record.questionId === currentQuestion.id)) {
+    records.push(createQuestionRecord(currentQuestion));
+  }
+
+  return records;
+}
+
+function questionsFromHistory(
+  history: Array<InterviewQuestion | InterviewQuestionRecord> | undefined,
+): InterviewQuestion[] {
+  if (!Array.isArray(history)) {
+    return [];
+  }
+
+  return history
+    .map((item) => ("questionId" in item ? item.question : item))
+    .filter((question): question is InterviewQuestion => Boolean(question));
+}
+
+function createQuestionRecord(question: InterviewQuestion): InterviewQuestionRecord {
+  return {
+    questionId: question.id,
+    question,
+    questionType: question.questionType ?? "main",
+    parentQuestionId: question.parentQuestionId,
+    askedAt: question.createdAt ?? new Date().toISOString(),
+    followUpCount: question.followUpCount,
+  };
+}
+
+function markQuestionAnswered(
+  history: Array<InterviewQuestion | InterviewQuestionRecord>,
+  question: InterviewQuestion,
+  answer: string,
+  evaluation: {
+    score: number;
+    feedback: string;
+    strengths: string[];
+    improvements: string[];
+    confidence: number;
+  },
+): InterviewQuestionRecord[] {
+  const records = normalizeQuestionHistory(history, question);
+
+  return records.map((record) => {
+    if (record.questionId !== question.id) {
+      return record;
+    }
+
+    return {
+      ...record,
+      response: answer,
+      candidateAnswer: answer,
+      evaluatedScore: evaluation.score,
+      evaluation,
+    };
+  });
 }
 
 export default function InterviewSessionPage() {

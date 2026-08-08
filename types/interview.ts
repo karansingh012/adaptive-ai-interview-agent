@@ -9,8 +9,12 @@ export enum InterviewSessionStatus {
 
 export interface InterviewQuestionRecord {
     questionId: string;
+    question?: InterviewQuestion;
+    questionType?: "main" | "follow_up";
+    parentQuestionId?: string;
     askedAt: string;
     response?: string;
+    candidateAnswer?: string;
     followUpCount?: number;
     evaluatedScore?: number;
     evaluation?: {

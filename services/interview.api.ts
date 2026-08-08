@@ -1,3 +1,5 @@
+import type { InterviewQuestion } from "@/types/question";
+
 export interface StartInterviewRequest {
   candidateId: string;
 }
@@ -21,17 +23,7 @@ export interface StartInterviewResponse {
       confidence: number;
     }>;
   };
-  firstQuestion: {
-    id: string;
-    prompt: string;
-    difficulty?: string;
-    topic?: {
-      id: string;
-      name: string;
-      category?: string;
-      description?: string;
-    };
-  };
+  firstQuestion: InterviewQuestion;
   currentQuestionNumber: number;
   totalQuestions: number;
 }

@@ -30,6 +30,9 @@ export interface InterviewQuestion {
   topic: QuestionTopic;
   expectedConcepts: ExpectedConcept[];
   followUpSupport: FollowUpSupport;
+  questionType?: "main" | "follow_up";
+  parentQuestionId?: string;
+  followUpCount?: number;
   isAdaptive?: boolean;
   createdAt?: string;
 }
