@@ -7681,6 +7681,393 @@
         "fallbackCount": 22
       },
       "completedAt": "2026-08-08T17:46:38.496Z"
+    },
+    {
+      "token": "interview-1786214258058-wst2x7ak",
+      "candidateId": "cand-001",
+      "candidateName": "Maya Chen",
+      "status": "in_progress",
+      "sessionId": "session-cand-001-1786214258055",
+      "activeSession": {
+        "sessionId": "session-cand-001-1786214258055",
+        "candidate": {
+          "fullName": "Maya Chen",
+          "role": "Junior ML Engineer"
+        },
+        "firstQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-08T18:37:40.151Z"
+        },
+        "currentQuestionNumber": 2,
+        "totalQuestions": 8,
+        "sessionState": {
+          "currentTopicIndex": 1,
+          "followUpCountForCurrentTopic": 1,
+          "totalQuestionsAsked": 2,
+          "mainTopicsCompleted": 1
+        },
+        "interviewToken": "interview-1786214258058-wst2x7ak",
+        "mode": "candidate",
+        "evaluations": [
+          {
+            "questionId": "question-1-fallback-1yy26yh",
+            "score": 0,
+            "summary": "The candidate responded with 'hi' and did not attempt to answer any part of the prompt engineering question.",
+            "feedback": "You only provided a greeting and did not answer the question about implementing, testing, or avoiding pitfalls in prompt engineering.",
+            "strengths": [],
+            "improvements": [
+              "Provide a complete answer addressing prompt structure, context framing, and testing.",
+              "Explain foundational techniques such as zero-shot vs. few-shot prompting."
+            ],
+            "missingConcepts": [
+              "Prompt structure and context framing",
+              "Zero-shot vs. few-shot prompting",
+              "Prompt testing and evaluation",
+              "Common prompt engineering pitfalls"
+            ],
+            "confidence": 1,
+            "source": "gemini"
+          },
+          {
+            "questionId": "adaptive-1-followup-1-xctp0b",
+            "score": 2,
+            "summary": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+            "feedback": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+            "strengths": [
+              "You attempted to respond to the question."
+            ],
+            "improvements": [
+              "Expand your answer with concrete examples or steps.",
+              "Cover key ideas related to Prompt Engineering."
+            ],
+            "missingConcepts": [
+              "Provide a complete answer addressing prompt structure, context framing, and testing.",
+              "Explain foundational techniques such as zero-shot vs. few-shot prompting."
+            ],
+            "confidence": 0.7,
+            "source": "fallback"
+          },
+          {
+            "questionId": "adaptive-1-followup-2-udw4rl",
+            "score": 6.5,
+            "summary": "Fallback assessment: partial coverage of Prompt Engineering (1/2 expected concepts detected).",
+            "feedback": "Fallback assessment: partial coverage of Prompt Engineering (1/2 expected concepts detected).",
+            "strengths": [
+              "Provided a detailed response on Prompt Engineering.",
+              "Referenced relevant concepts: Expand your answer with concrete examples or steps.."
+            ],
+            "improvements": [
+              "Address missing concepts: Cover key ideas related to Prompt Engineering.."
+            ],
+            "missingConcepts": [
+              "Cover key ideas related to Prompt Engineering."
+            ],
+            "confidence": 0.45,
+            "source": "fallback"
+          },
+          {
+            "questionId": "question-2-fallback-1xuzwvs",
+            "score": 0,
+            "summary": "The candidate responded with 'yes', failing to explain the workflow or evaluation for Sentence Transformers and FAISS. Performance was non-responsive to the technical prompt.自信是1.0, 得分为0。0分。0.0到10.0 scale. 0/10.0. score 0.0. missing concepts expected. 0 score. 0.0. score is 0. 0.0. score 0. 0 score. 0.0. score 0.0. score 0. 0.0. score 0. 0.0. 0 score. score 0. score 0. score 0. score 0.",
+            "feedback": "You answered 'yes' without detailing any technical steps or evaluation methods for building a Sentence Transformers and FAISS workflow.",
+            "strengths": [],
+            "improvements": [],
+            "missingConcepts": [],
+            "confidence": 1,
+            "source": "gemini"
+          }
+        ],
+        "currentQuestion": {
+          "id": "adaptive-2-followup-1-veon3w",
+          "prompt": "To start simple, can you describe how Sentence Transformers turn text into vectors, and how FAISS helps search those vectors?",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-2",
+            "name": "Embeddings",
+            "category": "ai-engineering",
+            "description": "Explain semantic vector representations"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-2-adaptive-1",
+              "name": "Explain semantic vector representations"
+            },
+            {
+              "id": "concept-2-adaptive-2",
+              "name": "Understand embedding quality and dimensionality"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "follow_up",
+          "parentQuestionId": "question-2-fallback-1xuzwvs",
+          "followUpCount": 1,
+          "isAdaptive": true,
+          "createdAt": "2026-08-08T18:39:00.000Z"
+        },
+        "questionHistory": [
+          {
+            "questionId": "question-1-fallback-1yy26yh",
+            "question": {
+              "id": "question-1-fallback-1yy26yh",
+              "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+              "difficulty": "easy",
+              "topic": {
+                "id": "topic-1",
+                "name": "Prompt Engineering",
+                "category": "ai-engineering",
+                "description": "Understand prompt structure and context framing"
+              },
+              "expectedConcepts": [
+                {
+                  "id": "concept-1-1",
+                  "name": "Understand prompt structure and context framing"
+                },
+                {
+                  "id": "concept-1-2",
+                  "name": "Compare zero-shot and few-shot prompting"
+                }
+              ],
+              "followUpSupport": {
+                "enabled": true,
+                "maxFollowUps": 2,
+                "allowClarification": true
+              },
+              "questionType": "main",
+              "followUpCount": 0,
+              "isAdaptive": true,
+              "createdAt": "2026-08-08T18:37:40.151Z"
+            },
+            "questionType": "main",
+            "askedAt": "2026-08-08T18:37:40.151Z",
+            "followUpCount": 0,
+            "response": "hi",
+            "candidateAnswer": "hi",
+            "evaluatedScore": 0,
+            "evaluation": {
+              "questionId": "question-1-fallback-1yy26yh",
+              "score": 0,
+              "summary": "The candidate responded with 'hi' and did not attempt to answer any part of the prompt engineering question.",
+              "feedback": "You only provided a greeting and did not answer the question about implementing, testing, or avoiding pitfalls in prompt engineering.",
+              "strengths": [],
+              "improvements": [
+                "Provide a complete answer addressing prompt structure, context framing, and testing.",
+                "Explain foundational techniques such as zero-shot vs. few-shot prompting."
+              ],
+              "missingConcepts": [
+                "Prompt structure and context framing",
+                "Zero-shot vs. few-shot prompting",
+                "Prompt testing and evaluation",
+                "Common prompt engineering pitfalls"
+              ],
+              "confidence": 1,
+              "source": "gemini"
+            }
+          },
+          {
+            "questionId": "adaptive-1-followup-1-xctp0b",
+            "question": {
+              "id": "adaptive-1-followup-1-xctp0b",
+              "prompt": "Let's start with a core prompt engineering concept: Can you explain the difference between zero-shot and few-shot prompting, and give a quick example of when you would use few-shot prompting?",
+              "difficulty": "easy",
+              "topic": {
+                "id": "topic-1",
+                "name": "Prompt Engineering",
+                "category": "ai-engineering",
+                "description": "Understand prompt structure and context framing"
+              },
+              "expectedConcepts": [
+                {
+                  "id": "concept-1-adaptive-1",
+                  "name": "Provide a complete answer addressing prompt structure, context framing, and testing."
+                },
+                {
+                  "id": "concept-1-adaptive-2",
+                  "name": "Explain foundational techniques such as zero-shot vs. few-shot prompting."
+                }
+              ],
+              "followUpSupport": {
+                "enabled": true,
+                "maxFollowUps": 2,
+                "allowClarification": true
+              },
+              "questionType": "follow_up",
+              "parentQuestionId": "question-1-fallback-1yy26yh",
+              "followUpCount": 1,
+              "isAdaptive": true,
+              "createdAt": "2026-08-08T18:37:51.559Z"
+            },
+            "questionType": "follow_up",
+            "parentQuestionId": "question-1-fallback-1yy26yh",
+            "askedAt": "2026-08-08T18:37:51.559Z",
+            "followUpCount": 1,
+            "response": "bhefi",
+            "candidateAnswer": "bhefi",
+            "evaluatedScore": 2,
+            "evaluation": {
+              "questionId": "adaptive-1-followup-1-xctp0b",
+              "score": 2,
+              "summary": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+              "feedback": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+              "strengths": [
+                "You attempted to respond to the question."
+              ],
+              "improvements": [
+                "Expand your answer with concrete examples or steps.",
+                "Cover key ideas related to Prompt Engineering."
+              ],
+              "missingConcepts": [
+                "Provide a complete answer addressing prompt structure, context framing, and testing.",
+                "Explain foundational techniques such as zero-shot vs. few-shot prompting."
+              ],
+              "confidence": 0.7,
+              "source": "fallback"
+            }
+          },
+          {
+            "questionId": "adaptive-1-followup-2-udw4rl",
+            "question": {
+              "id": "adaptive-1-followup-2-udw4rl",
+              "prompt": "Can you elaborate on expand your answer with concrete examples or steps. in the context of Prompt Engineering?",
+              "difficulty": "medium",
+              "topic": {
+                "id": "topic-1",
+                "name": "Prompt Engineering",
+                "category": "ai-engineering",
+                "description": "Understand prompt structure and context framing"
+              },
+              "expectedConcepts": [
+                {
+                  "id": "concept-1-adaptive-1",
+                  "name": "Expand your answer with concrete examples or steps."
+                },
+                {
+                  "id": "concept-1-adaptive-2",
+                  "name": "Cover key ideas related to Prompt Engineering."
+                }
+              ],
+              "followUpSupport": {
+                "enabled": true,
+                "maxFollowUps": 2,
+                "allowClarification": true
+              },
+              "questionType": "follow_up",
+              "parentQuestionId": "question-1-fallback-1yy26yh",
+              "followUpCount": 2,
+              "isAdaptive": true,
+              "createdAt": "2026-08-08T18:38:02.832Z"
+            },
+            "questionType": "follow_up",
+            "parentQuestionId": "question-1-fallback-1yy26yh",
+            "askedAt": "2026-08-08T18:38:02.832Z",
+            "followUpCount": 2,
+            "response": "Explain machine learning to a 2nd-year CSE student who knows basic Python but has never studied ML. Start with a simple definition, explain supervised and unsupervised learning with one real-world example each, and finish with a short comparison table. Keep the explanation under 500 words.",
+            "candidateAnswer": "Explain machine learning to a 2nd-year CSE student who knows basic Python but has never studied ML. Start with a simple definition, explain supervised and unsupervised learning with one real-world example each, and finish with a short comparison table. Keep the explanation under 500 words.",
+            "evaluatedScore": 6.5,
+            "evaluation": {
+              "questionId": "adaptive-1-followup-2-udw4rl",
+              "score": 6.5,
+              "summary": "Fallback assessment: partial coverage of Prompt Engineering (1/2 expected concepts detected).",
+              "feedback": "Fallback assessment: partial coverage of Prompt Engineering (1/2 expected concepts detected).",
+              "strengths": [
+                "Provided a detailed response on Prompt Engineering.",
+                "Referenced relevant concepts: Expand your answer with concrete examples or steps.."
+              ],
+              "improvements": [
+                "Address missing concepts: Cover key ideas related to Prompt Engineering.."
+              ],
+              "missingConcepts": [
+                "Cover key ideas related to Prompt Engineering."
+              ],
+              "confidence": 0.45,
+              "source": "fallback"
+            }
+          },
+          {
+            "questionId": "question-2-fallback-1xuzwvs",
+            "question": {
+              "id": "question-2-fallback-1xuzwvs",
+              "prompt": "Suppose you are asked to build a simple workflow using Embeddings with Sentence Transformers and FAISS. How would you approach it, and how would you know it is working correctly?",
+              "difficulty": "easy",
+              "topic": {
+                "id": "topic-2",
+                "name": "Embeddings",
+                "category": "ai-engineering",
+                "description": "Explain semantic vector representations"
+              },
+              "expectedConcepts": [
+                {
+                  "id": "concept-2-1",
+                  "name": "Explain semantic vector representations"
+                },
+                {
+                  "id": "concept-2-2",
+                  "name": "Understand embedding quality and dimensionality"
+                }
+              ],
+              "followUpSupport": {
+                "enabled": true,
+                "maxFollowUps": 2,
+                "allowClarification": true
+              },
+              "questionType": "main",
+              "followUpCount": 0,
+              "isAdaptive": true,
+              "createdAt": "2026-08-08T18:38:38.743Z"
+            },
+            "questionType": "main",
+            "askedAt": "2026-08-08T18:38:38.743Z",
+            "followUpCount": 0,
+            "response": "yes",
+            "candidateAnswer": "yes",
+            "evaluatedScore": 0,
+            "evaluation": {
+              "questionId": "question-2-fallback-1xuzwvs",
+              "score": 0,
+              "summary": "The candidate responded with 'yes', failing to explain the workflow or evaluation for Sentence Transformers and FAISS. Performance was non-responsive to the technical prompt.自信是1.0, 得分为0。0分。0.0到10.0 scale. 0/10.0. score 0.0. missing concepts expected. 0 score. 0.0. score is 0. 0.0. score 0. 0 score. 0.0. score 0.0. score 0. 0.0. score 0. 0.0. 0 score. score 0. score 0. score 0. score 0.",
+              "feedback": "You answered 'yes' without detailing any technical steps or evaluation methods for building a Sentence Transformers and FAISS workflow.",
+              "strengths": [],
+              "improvements": [],
+              "missingConcepts": [],
+              "confidence": 1,
+              "source": "gemini"
+            }
+          }
+        ],
+        "questionId": "question-2-fallback-1xuzwvs",
+        "questionLabel": "Follow-up question"
+      },
+      "createdAt": "2026-08-08T18:37:38.058Z",
+      "updatedAt": "2026-08-08T18:39:00.004Z"
     }
   ]
 }
