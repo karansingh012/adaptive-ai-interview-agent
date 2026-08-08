@@ -25,6 +25,14 @@ type InterviewSessionData = {
   questionId?: string;
   currentQuestionNumber: number;
   totalQuestions: number;
+  evaluations: Array<{
+    questionId: string;
+    score: number;
+    feedback: string;
+    strengths: string[];
+    improvements: string[];
+    confidence: number;
+  }>;
 };
 
 function SessionPageContent() {
@@ -46,6 +54,7 @@ function SessionPageContent() {
           const currentQuestion = parsed.currentQuestion ?? parsed.firstQuestion;
           const normalizedSession = {
             ...parsed,
+            evaluations: Array.isArray(parsed.evaluations) ? parsed.evaluations : [],
             currentQuestion,
             questionId: currentQuestion.id,
           };
@@ -91,7 +100,13 @@ function SessionPageContent() {
       body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
+    let data: any;
+    try {
+      data = await response.json();
+    } catch (error) {
+      console.error("Failed to parse submit response", error);
+      return;
+    }
     console.log("Final submit response:", JSON.stringify(data, null, 2));
     console.log("Submit response:", data);
 
@@ -99,6 +114,17 @@ function SessionPageContent() {
       console.error("Submit failed", data);
       return;
     }
+
+    const newEvaluation = {
+      questionId: currentQuestion.id,
+      score: Number(data.evaluation?.score ?? 0),
+      feedback: String(data.evaluation?.feedback ?? ""),
+      strengths: Array.isArray(data.evaluation?.strengths) ? data.evaluation.strengths : [],
+      improvements: Array.isArray(data.evaluation?.improvements) ? data.evaluation.improvements : [],
+      confidence: Number(data.evaluation?.confidence ?? 0),
+    };
+
+    const updatedEvaluations = [...(session.evaluations ?? []), newEvaluation];
 
     console.log("Answer submitted successfully");
     console.log("Updating UI:", data.nextQuestion?.id);
@@ -109,7 +135,13 @@ function SessionPageContent() {
       !data.nextQuestion;
 
     if (interviewFinished) {
-      sessionStorage.setItem("interview-report", JSON.stringify(data));
+      sessionStorage.setItem(
+        "interview-report",
+        JSON.stringify({
+          ...data,
+          evaluations: updatedEvaluations,
+        }),
+      );
       sessionStorage.removeItem("interview-session");
       router.replace("/report");
       return;
@@ -117,6 +149,7 @@ function SessionPageContent() {
 
     const updatedSession = {
       ...session,
+      evaluations: updatedEvaluations,
       currentQuestion: data.nextQuestion ?? currentQuestion,
       questionId: data.nextQuestion?.id ?? currentQuestion.id,
       currentQuestionNumber: data.currentQuestionNumber ?? session.currentQuestionNumber,

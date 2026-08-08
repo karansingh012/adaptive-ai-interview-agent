@@ -8,13 +8,19 @@ export enum InterviewSessionStatus {
 }
 
 export interface InterviewQuestionRecord {
-  questionId: string;
-  askedAt: string;
-  response?: string;
-  followUpCount?: number;
-  evaluatedScore?: number;
-}
-
+    questionId: string;
+    askedAt: string;
+    response?: string;
+    followUpCount?: number;
+    evaluatedScore?: number;
+    evaluation?: {
+      score: number;
+      feedback: string;
+      strengths: string[];
+      improvements: string[];
+      confidence: number;
+    };
+  }
 export interface InterviewSessionMetadata {
   candidateName?: string;
   role?: string;

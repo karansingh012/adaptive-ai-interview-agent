@@ -6,14 +6,24 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 
+type InterviewEvaluation = {
+  questionId: string;
+  score: number;
+  feedback: string;
+  strengths: string[];
+  improvements: string[];
+  confidence: number;
+};
+
 type InterviewReport = {
   status: string;
   totalQuestions: number;
-  evaluation: {
+  evaluation?: {
     score: number;
     feedback: string;
     isFinalQuestion: boolean;
   };
+  evaluations: InterviewEvaluation[];
 };
 
 export default function ReportPage() {
@@ -23,7 +33,11 @@ export default function ReportPage() {
     const stored = sessionStorage.getItem("interview-report");
     if (stored) {
       try {
-        setReport(JSON.parse(stored));
+        const parsed = JSON.parse(stored) as InterviewReport;
+        setReport({
+          ...parsed,
+          evaluations: Array.isArray(parsed.evaluations) ? parsed.evaluations : [],
+        });
       } catch (err) {
         console.error("Failed to load report", err);
       }
@@ -36,11 +50,41 @@ export default function ReportPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold">No Report Found</h1>
           <p className="mt-3 text-zinc-400">Complete an interview first.</p>
-          <Link href="/" className="mt-6 inline-block rounded-lg bg-indigo-600 px-5 py-3 text-white">Go Home</Link>
+          <Link href="/" className="mt-6 inline-block rounded-lg bg-indigo-600 px-5 py-3 text-white">
+            Go Home
+          </Link>
         </div>
       </div>
     );
   }
+
+  const evaluations = report.evaluations ?? [];
+  const averageScore = evaluations.length
+    ? evaluations.reduce((sum, evaluation) => sum + evaluation.score, 0) / evaluations.length
+    : report.evaluation?.score ?? 0;
+  const roundedScore = Math.round(averageScore * 10) / 10;
+
+  const strengths = Array.from(
+    new Set(evaluations.flatMap((evaluation) => evaluation.strengths)),
+  ).slice(0, 6);
+
+  const improvements = Array.from(
+    new Set(evaluations.flatMap((evaluation) => evaluation.improvements)),
+  ).slice(0, 6);
+
+  const latestFeedback =
+    evaluations.length > 0
+      ? evaluations[evaluations.length - 1].feedback
+      : report.evaluation?.feedback ?? "No evaluation feedback available.";
+
+  const evaluatedQuestions = evaluations.length || (report.evaluation ? 1 : 0);
+
+  const recommendation =
+    roundedScore >= 8
+      ? "Excellent performance."
+      : roundedScore >= 6
+        ? "Good performance with room for improvement."
+        : "Keep practicing and improve core concepts.";
 
   return (
     <div className="min-h-screen bg-[#09090B] text-white">
@@ -70,7 +114,7 @@ export default function ReportPage() {
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-300">Candidate Summary</p>
                 <h1 className="mt-3 text-3xl font-semibold text-white">Interview Completed</h1>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
-                  Your interview has been completed successfully. Below is a summary of your performance generated from the interview evaluation.
+                  Your interview has been completed successfully. This report aggregates the evaluations from all answered questions.
                 </p>
               </div>
               <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 text-sm text-zinc-400">
@@ -88,11 +132,12 @@ export default function ReportPage() {
               className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-[0_20px_80px_rgba(0,0,0,0.28)]"
             >
               <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-6">
-                <div>
-                  <p className="text-sm text-zinc-400">Overall Score</p>
-                  <h2 className="mt-3 text-4xl font-bold text-white">{report.evaluation.score}/5</h2>
-                  <p className="mt-4 text-zinc-300">{report.evaluation.feedback}</p>
-                </div>
+                <p className="text-sm text-zinc-400">Overall Score</p>
+                <h2 className="mt-3 text-4xl font-bold text-white">{roundedScore}/10</h2>
+                <p className="mt-2 text-xs text-zinc-500">
+                  Based on {evaluatedQuestions} evaluated question{evaluatedQuestions === 1 ? "" : "s"}
+                </p>
+                <p className="mt-4 text-zinc-300">{latestFeedback}</p>
               </div>
             </motion.section>
 
@@ -103,13 +148,31 @@ export default function ReportPage() {
               className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-[0_20px_80px_rgba(0,0,0,0.28)]"
             >
               <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-6">
-                <div>
-                  <p className="text-sm text-zinc-400">Questions Completed</p>
-                  <h2 className="mt-3 text-4xl font-bold text-white">{report.totalQuestions}</h2>
-                  <p className="mt-6 text-zinc-300">
-                    {report.evaluation.score >= 4 ? "Recommendation: Excellent performance." : "Recommendation: Keep practicing and improve core concepts."}
-                  </p>
-                </div>
+                <p className="text-sm text-zinc-400">Questions Completed</p>
+                <h2 className="mt-3 text-4xl font-bold text-white">{report.totalQuestions}</h2>
+                <p className="mt-6 text-zinc-300">Recommendation: {recommendation}</p>
+
+                {strengths.length > 0 && (
+                  <div className="mt-6">
+                    <p className="text-sm font-semibold text-white">Strengths</p>
+                    <ul className="mt-3 space-y-2 text-sm text-zinc-400">
+                      {strengths.map((strength) => (
+                        <li key={strength}>• {strength}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {improvements.length > 0 && (
+                  <div className="mt-6">
+                    <p className="text-sm font-semibold text-white">Areas to Improve</p>
+                    <ul className="mt-3 space-y-2 text-sm text-zinc-400">
+                      {improvements.map((improvement) => (
+                        <li key={improvement}>• {improvement}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </motion.section>
           </div>
