@@ -1,3 +1,4 @@
+import { get, put } from "@vercel/blob";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import type { InterviewLinkRecord, InterviewLinkStatus } from "@/types/interview";
@@ -6,15 +7,30 @@ type InterviewLinksFile = {
   links: InterviewLinkRecord[];
 };
 
-const DATA_FILE = path.join(process.cwd(), "data", "interview-links.json");
+const LOCAL_DATA_FILE = path.join(process.cwd(), "data", "interview-links.json");
+const BLOB_PATHNAME = "interview-data/interview-links.json";
 
 function generateToken(): string {
   return `interview-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-async function readLinksFile(): Promise<InterviewLinkRecord[]> {
+function shouldUseBlobStorage(): boolean {
+  // Vercel's filesystem is read-only. Any Vercel deployment must use Blob
+  // storage rather than the local JSON file, regardless of which Vercel
+  // runtime environment variables are exposed to the function.
+  if (process.env.VERCEL === "1" || process.env.VERCEL_ENV) {
+    return true;
+  }
+
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+}
+
+async function readLocalLinksFile(): Promise<InterviewLinkRecord[]> {
+  if (shouldUseBlobStorage()) {
+    throw new Error("Local interview-link storage cannot be used on Vercel; configure Vercel Blob.");
+  }
   try {
-    const raw = await readFile(DATA_FILE, "utf8");
+    const raw = await readFile(LOCAL_DATA_FILE, "utf8");
     const parsed = JSON.parse(raw) as InterviewLinksFile;
     return Array.isArray(parsed.links) ? parsed.links : [];
   } catch {
@@ -22,8 +38,76 @@ async function readLinksFile(): Promise<InterviewLinkRecord[]> {
   }
 }
 
+async function writeLocalLinksFile(links: InterviewLinkRecord[]): Promise<void> {
+  if (shouldUseBlobStorage()) {
+    throw new Error("Local interview-link storage cannot be used on Vercel; configure Vercel Blob.");
+  }
+  await writeFile(
+    LOCAL_DATA_FILE,
+    JSON.stringify({ links }, null, 2),
+    "utf8",
+  );
+}
+
+async function readLinksFile(): Promise<InterviewLinkRecord[]> {
+  if (!shouldUseBlobStorage()) {
+    return readLocalLinksFile();
+  }
+
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error(
+      "Vercel Blob is required on Vercel, but BLOB_READ_WRITE_TOKEN is missing. Reconnect the Blob store to this project for Production and redeploy.",
+    );
+  }
+
+  try {
+    const result = await get(BLOB_PATHNAME, {
+      access: "private",
+      useCache: false,
+    });
+
+    if (!result) {
+      return [];
+    }
+
+    const text = await new Response(result.stream).text();
+    const parsed = JSON.parse(text) as InterviewLinksFile;
+
+    return Array.isArray(parsed.links) ? parsed.links : [];
+  } catch (error) {
+    // A missing Blob object is normal on first use. Other errors should be
+    // surfaced so production failures are not silently converted to empty data.
+    const message = error instanceof Error ? error.message.toLowerCase() : "";
+    const isMissingBlob =
+      message.includes("not found") ||
+      message.includes("does not exist") ||
+      message.includes("404");
+
+    if (isMissingBlob) {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
 async function writeLinksFile(links: InterviewLinkRecord[]): Promise<void> {
-  await writeFile(DATA_FILE, JSON.stringify({ links }, null, 2), "utf8");
+  if (!shouldUseBlobStorage()) {
+    await writeLocalLinksFile(links);
+    return;
+  }
+
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error(
+      "Vercel Blob is required on Vercel, but BLOB_READ_WRITE_TOKEN is missing. Reconnect the Blob store to this project for Production and redeploy.",
+    );
+  }
+
+  await put(BLOB_PATHNAME, JSON.stringify({ links }, null, 2), {
+    access: "private",
+    allowOverwrite: true,
+    contentType: "application/json",
+  });
 }
 
 export class InterviewLinkService {
@@ -67,14 +151,22 @@ export class InterviewLinkService {
     const links = await readLinksFile();
     const candidateLinks = links
       .filter((link) => link.candidateId === candidateId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
 
     return candidateLinks[0] ?? null;
   }
 
   async updateLink(
     token: string,
-    updates: Partial<Pick<InterviewLinkRecord, "status" | "sessionId" | "activeSession" | "reportData" | "completedAt">>,
+    updates: Partial<
+      Pick<
+        InterviewLinkRecord,
+        "status" | "sessionId" | "activeSession" | "reportData" | "completedAt"
+      >
+    >,
   ): Promise<InterviewLinkRecord | null> {
     const links = await readLinksFile();
     const index = links.findIndex((link) => link.token === token);
@@ -94,7 +186,11 @@ export class InterviewLinkService {
     return updated;
   }
 
-  async markInProgress(token: string, sessionId: string, activeSession: Record<string, unknown>): Promise<InterviewLinkRecord | null> {
+  async markInProgress(
+    token: string,
+    sessionId: string,
+    activeSession: Record<string, unknown>,
+  ): Promise<InterviewLinkRecord | null> {
     return this.updateLink(token, {
       status: "in_progress",
       sessionId,
@@ -102,11 +198,17 @@ export class InterviewLinkService {
     });
   }
 
-  async saveActiveSession(token: string, activeSession: Record<string, unknown>): Promise<InterviewLinkRecord | null> {
+  async saveActiveSession(
+    token: string,
+    activeSession: Record<string, unknown>,
+  ): Promise<InterviewLinkRecord | null> {
     return this.updateLink(token, { activeSession });
   }
 
-  async markCompleted(token: string, reportData: Record<string, unknown>): Promise<InterviewLinkRecord | null> {
+  async markCompleted(
+    token: string,
+    reportData: Record<string, unknown>,
+  ): Promise<InterviewLinkRecord | null> {
     return this.updateLink(token, {
       status: "completed",
       reportData,
