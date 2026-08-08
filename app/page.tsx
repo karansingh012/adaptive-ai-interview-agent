@@ -1,15 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import {
   ArrowRight,
   BrainCircuit,
   ChartNoAxesCombined,
   Cpu,
   GitBranch,
+  LayoutDashboard,
   Lightbulb,
   MessageSquareText,
   Play,
@@ -17,7 +16,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useInterview } from "@/hooks/useInterview";
 
 const features = [
   {
@@ -88,57 +86,23 @@ const reasons = [
 ];
 
 export default function Home() {
-  const router = useRouter();
-  const { start, isLoading } = useInterview();
-
-  const [candidates, setCandidates] = useState<{id:string;fullName:string;role:string}[]>([]);
-  const [selectedCandidate, setSelectedCandidate] = useState("");
-
-  useEffect(() => {
-    fetch("/api/candidates")
-      .then((r) => r.json())
-      .then((data) => {
-        setCandidates(data);
-        if (data.length > 0) setSelectedCandidate(data[0].id);
-      })
-      .catch(console.error);
-  }, []);
-
-  const handleStartInterview = async () => {
-    console.log("Button clicked");
-    console.log("Calling startInterview()");
-
-    try {
-      if (!selectedCandidate) return;
-      const response = await start(selectedCandidate);
-      console.log("Hook response:", response);
-
-      if (response?.sessionId) {
-        console.log("Saving session");
-        sessionStorage.setItem("interview-session", JSON.stringify(response));
-        console.log("Navigating to session page");
-        // router.push("/interview/session");
-        await router.push("/interview/session");
-      }
-    } catch (error) {
-      console.error("Start interview failed:", error);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#09090B] text-white">
       <main className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.28),_transparent_35%),radial-gradient(circle_at_80%_20%,_rgba(34,197,94,0.16),_transparent_28%)]" />
 
-        <header className="relative border-b border-white/10 bg-[#09090B]/80 backdrop-blur">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-            <Link href="/" className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-zinc-100">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-300">
+        <header className="relative border-b border-white/10 bg-[#09090B]/80 backdrop-blur-md">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+            <Link href="/" className="flex items-center gap-2.5 text-sm font-semibold text-zinc-100">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-300">
                 <Sparkles className="h-4 w-4" />
               </span>
               Intervu AI
             </Link>
-            <nav className="hidden items-center gap-6 text-sm text-zinc-400 md:flex">
+            <nav className="hidden items-center gap-8 text-sm text-zinc-400 md:flex">
+              <Link href="/dashboard" className="transition hover:text-white">
+                Dashboard
+              </Link>
               <a href="#features" className="transition hover:text-white">
                 Features
               </a>
@@ -149,53 +113,59 @@ export default function Home() {
                 Why Intervu AI
               </a>
             </nav>
+            <Button
+              asChild
+              size="sm"
+              className="rounded-lg bg-indigo-500 px-4 text-sm font-medium text-white hover:bg-indigo-400"
+            >
+              <Link href="/dashboard">
+                <LayoutDashboard className="h-4 w-4" />
+                Dashboard
+              </Link>
+            </Button>
           </div>
         </header>
 
-        <section className="relative px-4 py-16 sm:px-8 sm:py-20 lg:px-8 lg:py-28">
-          <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+        <section className="relative px-4 py-10 sm:px-8 sm:py-14 lg:px-8 lg:py-16">
+          <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="max-w-2xl"
             >
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-sm text-indigo-200">
-                <ShieldCheck className="h-4 w-4" />
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-200">
+                <ShieldCheck className="h-3.5 w-3.5" />
                 Premium AI interview experience
               </div>
-              <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
                 Adaptive AI Interview Agent
               </h1>
-              <p className="mt-6 text-base leading-8 text-zinc-400 sm:text-lg lg:text-xl">
+              <p className="mt-4 text-base leading-7 text-zinc-400 sm:text-lg">
                 Practice technical interviews powered by AI. Receive adaptive follow-up questions, instant evaluation, personalized feedback, and a complete interview report.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <select
-                  value={selectedCandidate}
-                  onChange={(e) => setSelectedCandidate(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-white sm:w-80"
-                >
-                  {candidates.map((candidate) => (
-                    <option key={candidate.id} value={candidate.id}>
-                      {candidate.fullName} — {candidate.role}
-                    </option>
-                  ))}
-                </select>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Button
-                  onClick={handleStartInterview}
-                  disabled={isLoading}
-                  className="w-full rounded-full bg-indigo-500 px-6 py-6 text-sm font-semibold text-white transition hover:bg-indigo-400 sm:w-auto"
+                  asChild
+                  className="rounded-xl bg-indigo-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400"
                 >
-                  Start Interview
-                  <ArrowRight className="h-4 w-4" />
+                  <Link href="/dashboard">
+                    Open Interview Dashboard
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </Button>
-                <Button variant="outline" className="w-full rounded-full border-white/15 bg-white/5 px-6 py-6 text-sm font-semibold text-zinc-100 hover:bg-white/10 sm:w-auto">
-                  <Play className="h-4 w-4" />
-                  Learn More
-                </Button>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-zinc-300 transition hover:bg-white/10"
+                >
+                  <Play className="h-3.5 w-3.5" />
+                  Learn how it works
+                </button>
               </div>
-              <div className="mt-10 flex flex-wrap gap-3 text-sm text-zinc-400">
+
+              <div className="mt-6 flex flex-wrap gap-2 text-xs text-zinc-400">
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Adaptive follow-ups</span>
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Instant scoring</span>
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Structured reports</span>
@@ -250,7 +220,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="features" className="relative px-4 py-16 sm:px-8 sm:py-20 lg:px-8">
+        <section id="features" className="relative px-4 py-12 sm:px-8 sm:py-16 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-2xl">
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-300">Features</p>
@@ -269,13 +239,13 @@ export default function Home() {
                     viewport={{ once: true, amount: 0.2 }}
                     transition={{ duration: 0.4, delay: index * 0.06 }}
                     whileHover={{ y: -6, scale: 1.01 }}
-                    className="rounded-[1.5rem] border border-white/10 bg-white/5 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)]"
+                    className="flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)]"
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-300">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-300">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <h3 className="mt-5 text-xl font-semibold text-white">{feature.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-zinc-400">{feature.description}</p>
+                    <h3 className="mt-4 text-lg font-semibold text-white">{feature.title}</h3>
+                    <p className="mt-2 flex-1 text-sm leading-6 text-zinc-400">{feature.description}</p>
                   </motion.article>
                 );
               })}
@@ -283,7 +253,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="how-it-works" className="relative px-4 py-16 sm:px-8 sm:py-20 lg:px-8">
+        <section id="how-it-works" className="relative px-4 py-12 sm:px-8 sm:py-16 lg:px-8">
           <div className="mx-auto max-w-7xl rounded-[2rem] border border-white/10 bg-zinc-950/60 p-6 shadow-[0_20px_80px_rgba(0,0,0,0.25)] sm:p-10 lg:p-12">
             <div className="max-w-2xl">
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-300">How it works</p>
@@ -307,7 +277,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="why" className="relative px-4 py-16 sm:px-8 sm:py-20 lg:px-8">
+        <section id="why" className="relative px-4 py-12 sm:px-8 sm:py-16 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-2xl">
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-300">Why Intervu AI</p>
@@ -323,13 +293,13 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className="rounded-[1.5rem] border border-white/10 bg-zinc-900/70 p-6"
+                  className="flex h-full flex-col rounded-2xl border border-white/10 bg-zinc-900/70 p-5"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300">
                     <Lightbulb className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-5 text-xl font-semibold text-white">{reason.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-zinc-400">{reason.description}</p>
+                  <h3 className="mt-4 text-lg font-semibold text-white">{reason.title}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-6 text-zinc-400">{reason.description}</p>
                 </motion.div>
               ))}
             </div>
@@ -348,9 +318,14 @@ export default function Home() {
                   Step into an experience crafted to feel sharp, modern, and genuinely useful.
                 </p>
               </div>
-              <Button className="rounded-full bg-white px-6 py-6 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-100">
-                Start Interview
-                <ArrowRight className="h-4 w-4" />
+              <Button
+                asChild
+                className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-100"
+              >
+                <Link href="/dashboard">
+                  Open Dashboard
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </Button>
             </div>
           </div>

@@ -1,14 +1,14 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { startInterview, type StartInterviewResponse } from "@/services/interview.api";
 
 export function useInterview() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<unknown>(null);
-  const [evaluation, setEvaluation] = useState<unknown>(null);
-  const [report, setReport] = useState<unknown>(null);
+  const [evaluation] = useState<unknown>(null);
+  const [report] = useState<unknown>(null);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
 
-  const start = async (candidateId: string): Promise<StartInterviewResponse | null> => {
+  const start = useCallback(async (candidateId: string): Promise<StartInterviewResponse | null> => {
     console.log("Calling startInterview() in hook");
     setIsLoading(true);
     try {
@@ -24,7 +24,7 @@ export function useInterview() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   return useMemo(
     () => ({

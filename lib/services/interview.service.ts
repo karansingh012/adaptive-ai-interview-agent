@@ -8,11 +8,23 @@ import {
 } from "../../types/candidate";
 import type { CurriculumDay } from "../../types/curriculum";
 import type { InterviewQuestion } from "../../types/question";
-import { InterviewSessionStatus, type InterviewQuestionRecord, type InterviewSession } from "../../types/interview";
-import { geminiService } from "./gemini.service";
+import {
+  InterviewSessionStatus,
+  type AdaptiveSessionState,
+  type InterviewQuestionRecord,
+  type InterviewSession,
+} from "../../types/interview";
+import { MAX_FOLLOW_UPS_PER_TOPIC, MAX_TOTAL_QUESTIONS } from "@/utils/constants";
+import {
+  geminiService,
+  type GeminiAdaptiveEvaluation,
+  type GeminiEvaluation,
+  type InterviewDecisionAction,
+} from "./gemini.service";
+import { createLocalFallbackEvaluation, type EvaluationSource } from "./evaluation.service";
 import { questionGenerationService } from "./question-generation.service";
 
-const MAX_FOLLOW_UPS_PER_MAIN_QUESTION = 2;
+const MAX_FOLLOW_UPS_PER_MAIN_QUESTION = MAX_FOLLOW_UPS_PER_TOPIC;
 
 type CandidateRecord = {
   id: string;
@@ -80,15 +92,10 @@ type StartInterviewResult = {
   firstQuestion: InterviewQuestion;
   currentQuestionNumber: number;
   totalQuestions: number;
+  sessionState: AdaptiveSessionState;
 };
 
 export class InterviewService {
-  /**
-   * Submit an answer to an interview question and get the next question or follow-up.
-   * @param sessionId - The interview session ID
-   * @param answer - The candidate's answer to the current question
-   * @returns The updated session state, next question (if any), and evaluation results
-   */
   async submitAnswer(
     sessionId: string,
     questionId: string,
@@ -96,63 +103,152 @@ export class InterviewService {
     currentQuestionInput?: InterviewQuestion,
     previousQuestions: InterviewQuestion[] = [],
     questionHistory: InterviewQuestionRecord[] = [],
+    sessionStateInput?: AdaptiveSessionState,
   ): Promise<{
     sessionId: string;
     evaluation: {
       score: number;
+      summary: string;
       feedback: string;
       strengths: string[];
       improvements: string[];
+      missingConcepts: string[];
       confidence: number;
+      source: EvaluationSource;
       followUp?: InterviewQuestion;
       isFinalQuestion: boolean;
+      questionLabel?: string;
+      decisionAction?: InterviewDecisionAction;
     };
     nextQuestion?: InterviewQuestion;
     currentQuestionNumber: number;
     totalQuestions: number;
     status: InterviewSessionStatus;
+    sessionState: AdaptiveSessionState;
   }> {
     const candidate = await this.loadCandidate(this.getCandidateIdFromSession(sessionId));
     const curriculum = await this.loadCurriculum();
-    const totalQuestions = curriculum.length;
+    const totalCurriculumTopics = curriculum.length;
 
-    // Determine the current question index from the submitted question id.
-    const match = questionId.match(/question-(\d+)/);
-    const answeredQuestionIndex = match ? parseInt(match[1], 10) - 1 : 0;
-    const nextQuestionIndex = answeredQuestionIndex + 1;
-    const currentMainQuestionNumber = answeredQuestionIndex + 1;
-    const currentDay = curriculum[answeredQuestionIndex];
-    const currentQuestion = currentQuestionInput ??
-      questionGenerationService.generateFallbackQuestion(candidate, currentDay, previousQuestions);
-    const expectedConcepts = currentQuestion.expectedConcepts.map((concept) => concept.name);
-    const mainQuestion = this.findMainQuestion(currentQuestion, questionHistory);
-    const answeredFollowUpCount = this.getAnsweredFollowUpCount(currentQuestion, questionHistory, mainQuestion.id);
-
-    console.log("========== STEP 3 ==========");
-    console.log("Current question", currentQuestion);
-    console.log("========== STEP 4 ==========");
-    console.log("Answer", answer);
-    console.log("========== STEP 5 ==========");
-    console.log("Expected concepts", expectedConcepts);
-
-    const evaluation = await geminiService.evaluateAnswer(
-      currentQuestion,
-      answer,
-      expectedConcepts,
+    const sessionState = this.resolveSessionState(
+      sessionStateInput,
+      currentQuestionInput,
+      questionHistory,
+      curriculum,
     );
 
-    let followUp: InterviewQuestion | undefined = undefined;
-    const shouldTryFollowUp =
-      this.shouldAskFollowUp(evaluation) &&
-      answeredFollowUpCount < MAX_FOLLOW_UPS_PER_MAIN_QUESTION &&
-      currentQuestion.followUpSupport.enabled;
+    const currentTopicIndex = Math.min(sessionState.currentTopicIndex, totalCurriculumTopics - 1);
+    const currentDay = curriculum[currentTopicIndex];
+    const currentQuestion = currentQuestionInput ??
+      questionGenerationService.generateFallbackQuestion(candidate, currentDay, previousQuestions);
+    const mainQuestion = this.findMainQuestion(currentQuestion, questionHistory);
+    const answeredFollowUpCount = this.getAnsweredFollowUpCount(questionHistory, mainQuestion.id, currentQuestion);
+    const allPreviousQuestions = this.collectPreviousQuestions(previousQuestions, questionHistory, currentQuestion);
+    const remainingTopics = curriculum.slice(currentTopicIndex + 1);
 
-    let nextQuestion: InterviewQuestion | undefined = undefined;
-    let isFinalQuestion = nextQuestionIndex >= totalQuestions;
+    let adaptiveResult: GeminiAdaptiveEvaluation | null = null;
+    let evaluation: GeminiEvaluation;
+    let evaluationSource: EvaluationSource = "gemini";
+    const expectedConcepts = currentQuestion.expectedConcepts.map((concept) => concept.name);
 
-    if (shouldTryFollowUp) {
+    try {
+      adaptiveResult = await geminiService.evaluateAnswerAndDecide({
+        candidate,
+        currentQuestion,
+        mainQuestion,
+        candidateAnswer: answer,
+        currentTopic: currentDay,
+        currentTopicIndex,
+        followUpCountForCurrentTopic: answeredFollowUpCount,
+        maxFollowUpsPerTopic: MAX_FOLLOW_UPS_PER_MAIN_QUESTION,
+        previousQuestions: allPreviousQuestions,
+        questionHistory,
+        remainingTopics,
+        mainTopicsCompleted: sessionState.mainTopicsCompleted,
+        totalCurriculumTopics,
+      });
+      evaluation = adaptiveResult;
+    } catch (error) {
+      console.error("[InterviewService] Adaptive evaluation failed; using local fallback.", error);
+      const fallback = createLocalFallbackEvaluation(currentQuestion, answer, expectedConcepts);
+      evaluation = fallback;
+      evaluationSource = "fallback";
+    }
+
+    let decisionAction = adaptiveResult?.decision.action ?? this.fallbackDecisionAction(evaluation, answeredFollowUpCount);
+    const decisionDifficulty = adaptiveResult?.decision.difficulty ?? "medium";
+    const decisionPrompt = adaptiveResult?.decision.nextQuestion ?? "";
+
+    if (this.isFollowUpAction(decisionAction) && answeredFollowUpCount >= MAX_FOLLOW_UPS_PER_MAIN_QUESTION) {
+      console.log("[InterviewService] Follow-up limit reached; moving to next topic.");
+      decisionAction = "next_topic";
+    }
+
+    const isCurrentMainQuestion = currentQuestion.questionType !== "follow_up";
+    const mainQuestionsAnswered = sessionState.totalQuestionsAsked + (isCurrentMainQuestion ? 1 : 0);
+    const shouldForceFinish = mainQuestionsAnswered >= MAX_TOTAL_QUESTIONS;
+
+    if (shouldForceFinish) {
+      decisionAction = "finish";
+    }
+
+    const evaluationPayload = {
+      score: evaluation.score,
+      summary: evaluation.summary,
+      feedback: evaluation.feedback,
+      strengths: evaluation.strengths,
+      improvements: evaluation.improvements,
+      missingConcepts: evaluation.missingConcepts,
+      confidence: evaluation.confidence,
+      source: evaluationSource,
+    };
+
+    if (decisionAction === "finish") {
+      return {
+        sessionId,
+        evaluation: {
+          ...evaluationPayload,
+          isFinalQuestion: true,
+          decisionAction,
+        },
+        currentQuestionNumber: mainQuestionsAnswered,
+        totalQuestions: MAX_TOTAL_QUESTIONS,
+        status: InterviewSessionStatus.Completed,
+        sessionState: {
+          ...sessionState,
+          totalQuestionsAsked: mainQuestionsAnswered,
+        },
+      };
+    }
+
+    let nextQuestion: InterviewQuestion | undefined;
+    let questionLabel: string | undefined;
+    let updatedSessionState: AdaptiveSessionState = {
+      ...sessionState,
+      totalQuestionsAsked: mainQuestionsAnswered,
+    };
+
+    if (this.isFollowUpAction(decisionAction)) {
+      const followUpNumber = answeredFollowUpCount + 1;
+      const prompt = decisionPrompt || this.buildFollowUpFallbackPrompt(currentQuestion, evaluation);
+
       try {
-        followUp = await questionGenerationService.generateFollowUpQuestion({
+        nextQuestion = questionGenerationService.buildAdaptiveQuestion({
+          candidate,
+          curriculumDay: currentDay,
+          prompt,
+          difficulty: decisionDifficulty,
+          mainQuestion,
+          currentQuestion,
+          evaluation,
+          followUpNumber,
+          previousQuestions: allPreviousQuestions,
+          questionType: "follow_up",
+          action: decisionAction,
+        });
+      } catch (error) {
+        console.error("[InterviewService] Adaptive follow-up build failed; using generation fallback.", error);
+        nextQuestion = await questionGenerationService.generateFollowUpQuestion({
           candidate,
           curriculumDay: currentDay,
           mainQuestion,
@@ -160,45 +256,97 @@ export class InterviewService {
           candidateAnswer: answer,
           evaluation,
           previousRecords: questionHistory,
-          followUpNumber: answeredFollowUpCount + 1,
+          followUpNumber,
         });
-        nextQuestion = followUp;
-        isFinalQuestion = false;
-      } catch (error) {
-        console.error("[InterviewService] Follow-up generation failed; continuing to next main question.", error);
       }
+
+      updatedSessionState = {
+        ...updatedSessionState,
+        currentTopicIndex,
+        followUpCountForCurrentTopic: followUpNumber,
+      };
+      questionLabel = "Follow-up question";
+    } else if (decisionAction === "next_topic") {
+      const nextTopicIndex = currentTopicIndex + 1;
+
+      if (nextTopicIndex >= totalCurriculumTopics) {
+        return {
+          sessionId,
+          evaluation: {
+            ...evaluationPayload,
+            isFinalQuestion: true,
+            decisionAction: "finish",
+          },
+          currentQuestionNumber: mainQuestionsAnswered,
+          totalQuestions: MAX_TOTAL_QUESTIONS,
+          status: InterviewSessionStatus.Completed,
+          sessionState: {
+            ...updatedSessionState,
+            mainTopicsCompleted: totalCurriculumTopics,
+          },
+        };
+      }
+
+      const nextDay = curriculum[nextTopicIndex];
+      const nextMainCompleted = sessionState.mainTopicsCompleted + 1;
+
+      try {
+        if (decisionPrompt) {
+          nextQuestion = questionGenerationService.buildAdaptiveQuestion({
+            candidate,
+            curriculumDay: nextDay,
+            prompt: decisionPrompt,
+            difficulty: decisionDifficulty,
+            mainQuestion,
+            currentQuestion,
+            evaluation,
+            followUpNumber: 0,
+            previousQuestions: allPreviousQuestions,
+            questionType: "main",
+            action: decisionAction,
+          });
+        } else {
+          nextQuestion = await questionGenerationService.generateQuestion(candidate, nextDay, allPreviousQuestions);
+        }
+      } catch (error) {
+        console.error("[InterviewService] Adaptive next-topic generation failed; using safe fallback.", error);
+        nextQuestion = questionGenerationService.generateFallbackQuestion(candidate, nextDay, allPreviousQuestions);
+      }
+
+      updatedSessionState = {
+        ...updatedSessionState,
+        currentTopicIndex: nextTopicIndex,
+        followUpCountForCurrentTopic: 0,
+        mainTopicsCompleted: nextMainCompleted,
+      };
+      questionLabel = "Next topic";
     }
 
-    if (!nextQuestion && !isFinalQuestion) {
-      const nextDay = curriculum[nextQuestionIndex];
-      nextQuestion = await questionGenerationService.generateQuestion(candidate, nextDay, [
-        ...previousQuestions,
-        currentQuestion,
-      ]);
-    }
-
-    console.log("Returning:", nextQuestion?.id);
+    const followUp = nextQuestion?.questionType === "follow_up" ? nextQuestion : undefined;
 
     return {
       sessionId,
       evaluation: {
-        score: evaluation.score,
-        feedback: evaluation.feedback,
-        strengths: evaluation.strengths,
-        improvements: evaluation.improvements,
-        confidence: evaluation.confidence,
+        ...evaluationPayload,
         followUp,
-        isFinalQuestion,
+        isFinalQuestion: false,
+        questionLabel,
+        decisionAction,
       },
       nextQuestion,
-      currentQuestionNumber: followUp
-        ? currentMainQuestionNumber
-        : Math.min(nextQuestionIndex + 1, totalQuestions),
-      totalQuestions,
-      status: isFinalQuestion && !nextQuestion ? InterviewSessionStatus.Completed : InterviewSessionStatus.Active,
+      currentQuestionNumber: nextQuestion?.questionType === "follow_up"
+        ? Math.max(1, mainQuestionsAnswered)
+        : mainQuestionsAnswered + 1,
+      totalQuestions: MAX_TOTAL_QUESTIONS,
+      status: InterviewSessionStatus.Active,
+      sessionState: updatedSessionState,
     };
   }
-  async startInterview(candidateId: string): Promise<StartInterviewResult> {
+
+  async prepareInterviewSession(
+    candidateId: string,
+    sessionId?: string,
+  ): Promise<StartInterviewResult> {
     const normalizedCandidateId = this.normalizeCandidateId(candidateId);
     const candidate = await this.loadCandidate(normalizedCandidateId);
     const curriculum = await this.loadCurriculum();
@@ -208,19 +356,136 @@ export class InterviewService {
     }
 
     const firstCurriculumDay = curriculum[0];
-    const firstQuestion = await questionGenerationService.generateQuestion(candidate, firstCurriculumDay, []);
+    const firstQuestion = questionGenerationService.generateFallbackQuestion(
+      candidate,
+      firstCurriculumDay,
+      [],
+    );
+    const sessionState: AdaptiveSessionState = {
+      currentTopicIndex: 0,
+      followUpCountForCurrentTopic: 0,
+      totalQuestionsAsked: 0,
+      mainTopicsCompleted: 0,
+    };
 
-    const session = this.createSession(normalizedCandidateId, candidate, firstQuestion);
+    const resolvedSessionId = sessionId ?? `session-${normalizedCandidateId}-${Date.now()}`;
+    this.createSession(normalizedCandidateId, candidate, firstQuestion);
 
     return {
-      sessionId: session.id,
+      sessionId: resolvedSessionId,
       candidate,
       firstQuestion,
       currentQuestionNumber: 1,
-      totalQuestions: curriculum.length,
+      totalQuestions: MAX_TOTAL_QUESTIONS,
+      sessionState,
     };
   }
 
+  async startInterview(candidateId: string): Promise<StartInterviewResult> {
+    return this.prepareInterviewSession(candidateId);
+  }
+
+  private resolveSessionState(
+    sessionStateInput: AdaptiveSessionState | undefined,
+    currentQuestion: InterviewQuestion | undefined,
+    questionHistory: InterviewQuestionRecord[],
+    curriculum: CurriculumDay[],
+  ): AdaptiveSessionState {
+    if (sessionStateInput) {
+      return sessionStateInput;
+    }
+
+    const topicIndex = this.inferTopicIndex(currentQuestion, curriculum);
+    const mainQuestion = currentQuestion ? this.findMainQuestion(currentQuestion, questionHistory) : undefined;
+    const followUpCount = mainQuestion
+      ? this.getAnsweredFollowUpCount(questionHistory, mainQuestion.id, currentQuestion)
+      : 0;
+    const answeredCount = questionHistory.filter(
+      (record) => record.questionType !== "follow_up" &&
+        (record.evaluation || typeof record.evaluatedScore === "number"),
+    ).length;
+    const mainTopicsCompleted = questionHistory.filter(
+      (record) => record.questionType === "main" && (record.evaluation || typeof record.evaluatedScore === "number"),
+    ).length;
+
+    return {
+      currentTopicIndex: topicIndex,
+      followUpCountForCurrentTopic: followUpCount,
+      totalQuestionsAsked: answeredCount,
+      mainTopicsCompleted,
+    };
+  }
+
+  private inferTopicIndex(currentQuestion: InterviewQuestion | undefined, curriculum: CurriculumDay[]): number {
+    if (!currentQuestion) {
+      return 0;
+    }
+
+    const topicIdMatch = currentQuestion.topic?.id?.match(/topic-(\d+)/);
+    if (topicIdMatch) {
+      const dayNumber = parseInt(topicIdMatch[1], 10);
+      const index = curriculum.findIndex((day) => day.day === dayNumber);
+      if (index >= 0) {
+        return index;
+      }
+    }
+
+    const topicName = currentQuestion.topic?.name?.toLowerCase();
+    if (topicName) {
+      const index = curriculum.findIndex((day) => day.topic.toLowerCase() === topicName);
+      if (index >= 0) {
+        return index;
+      }
+    }
+
+    return 0;
+  }
+
+  private collectPreviousQuestions(
+    previousQuestions: InterviewQuestion[],
+    questionHistory: InterviewQuestionRecord[],
+    currentQuestion: InterviewQuestion,
+  ): InterviewQuestion[] {
+    const fromHistory = questionHistory
+      .map((record) => record.question)
+      .filter((question): question is InterviewQuestion => Boolean(question));
+
+    const combined = [...fromHistory, ...previousQuestions, currentQuestion];
+    const seen = new Set<string>();
+
+    return combined.filter((question) => {
+      if (seen.has(question.id)) {
+        return false;
+      }
+      seen.add(question.id);
+      return true;
+    });
+  }
+
+  private isFollowUpAction(action: InterviewDecisionAction): boolean {
+    return action === "follow_up" || action === "easier" || action === "harder";
+  }
+
+  private fallbackDecisionAction(
+    evaluation: GeminiEvaluation,
+    answeredFollowUpCount: number,
+  ): InterviewDecisionAction {
+    if (answeredFollowUpCount < MAX_FOLLOW_UPS_PER_MAIN_QUESTION &&
+      (evaluation.score < 7 || evaluation.confidence < 0.55 || evaluation.improvements.length > 0)) {
+      return evaluation.score >= 8 ? "harder" : "follow_up";
+    }
+
+    return "next_topic";
+  }
+
+  private buildFollowUpFallbackPrompt(currentQuestion: InterviewQuestion, evaluation: GeminiEvaluation): string {
+    const improvement = evaluation.improvements[0];
+    if (improvement) {
+      return `Can you elaborate on ${improvement.toLowerCase()} in the context of ${currentQuestion.topic.name}?`;
+    }
+
+    return `Can you provide a more concrete example to support your answer about ${currentQuestion.topic.name}?`;
+  }
 
   private normalizeCandidateId(candidateId: string): string {
     const trimmedCandidateId = candidateId.trim();
@@ -284,6 +549,10 @@ export class InterviewService {
         totalQuestionsAsked: 0,
         isAdaptiveMode: true,
         lastUpdatedAt: now,
+        currentTopicIndex: 0,
+        followUpCountForCurrentTopic: 0,
+        mainTopicsCompleted: 0,
+        maxTotalQuestions: MAX_TOTAL_QUESTIONS,
       },
       metadata: {
         candidateName: candidate.fullName,
@@ -306,16 +575,6 @@ export class InterviewService {
     return match[1];
   }
 
-  private shouldAskFollowUp(evaluation: {
-    score: number;
-    improvements: string[];
-    confidence: number;
-  }): boolean {
-    return evaluation.score < 7 ||
-      evaluation.confidence < 0.55 ||
-      (evaluation.score < 8 && evaluation.improvements.length > 0);
-  }
-
   private findMainQuestion(
     currentQuestion: InterviewQuestion,
     questionHistory: InterviewQuestionRecord[],
@@ -330,19 +589,21 @@ export class InterviewService {
   }
 
   private getAnsweredFollowUpCount(
-    currentQuestion: InterviewQuestion,
     questionHistory: InterviewQuestionRecord[],
     mainQuestionId: string,
+    currentQuestion?: InterviewQuestion,
   ): number {
-    const previousFollowUpCount = questionHistory.filter((record) => (
-      record.questionType === "follow_up" && record.parentQuestionId === mainQuestionId
+    const previousAnsweredCount = questionHistory.filter((record) => (
+      record.questionType === "follow_up" &&
+      record.parentQuestionId === mainQuestionId &&
+      (record.evaluation || typeof record.evaluatedScore === "number")
     )).length;
 
-    if (currentQuestion.questionType === "follow_up") {
-      return Math.max(previousFollowUpCount, currentQuestion.followUpCount ?? 1);
+    if (currentQuestion?.questionType === "follow_up" && currentQuestion.parentQuestionId === mainQuestionId) {
+      return Math.max(previousAnsweredCount, currentQuestion.followUpCount ?? previousAnsweredCount + 1);
     }
 
-    return previousFollowUpCount;
+    return previousAnsweredCount;
   }
 
   private mapCurriculumStatus(status: string): CurriculumDayStatus {

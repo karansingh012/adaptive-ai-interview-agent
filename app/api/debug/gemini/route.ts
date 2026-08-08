@@ -9,7 +9,6 @@ export async function GET() {
       {
         success: true,
         model: response.model,
-        rawResponse: response.rawResponse,
         text: response.text,
       },
       { status: 200 },
@@ -24,9 +23,14 @@ export async function GET() {
     return NextResponse.json(
       {
         success: false,
-        rawResponse: diagnostics.originalSdkResponse ?? null,
-        error: error instanceof Error ? error.message : "Unknown Gemini debug error",
-        diagnostics,
+        error: "Gemini debug request failed.",
+        diagnostics: {
+          errorClass: diagnostics.errorClass,
+          httpStatus: diagnostics.httpStatus,
+          googleErrorCode: diagnostics.googleErrorCode,
+          googleErrorStatus: diagnostics.googleErrorStatus,
+          attemptedModels: diagnostics.attemptedModels,
+        },
       },
       { status: getDebugStatusCode(diagnostics) },
     );

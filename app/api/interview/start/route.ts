@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { interviewService } from "../../../../lib/services/interview.service";
+import { interviewLinkService } from "@/lib/services/interview-link.service";
 
 export async function POST(request: NextRequest) {
   try {
-    let body: { candidateId?: string } | null;
+    let body: { candidateId?: string; token?: string } | null;
 
     try {
-      body = (await request.json()) as { candidateId?: string };
+      body = (await request.json()) as { candidateId?: string; token?: string };
     } catch {
       return NextResponse.json(
         {
@@ -17,11 +18,67 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!body || typeof body.candidateId !== "string" || body.candidateId.trim() === "") {
+    if (!body) {
+      return NextResponse.json(
+        { success: false, error: "Invalid request" },
+        { status: 400 },
+      );
+    }
+
+    if (typeof body.token === "string" && body.token.trim() !== "") {
+      const token = body.token.trim();
+      const link = await interviewLinkService.getByToken(token);
+
+      if (!link) {
+        return NextResponse.json(
+          { success: false, error: "Invalid Interview Link" },
+          { status: 404 },
+        );
+      }
+
+      if (link.status === "completed") {
+        return NextResponse.json(
+          { success: false, error: "This interview has already been completed." },
+          { status: 410 },
+        );
+      }
+
+      if (link.status === "in_progress" && link.activeSession) {
+        return NextResponse.json(
+          {
+            ...link.activeSession,
+            interviewToken: token,
+            mode: "candidate",
+          },
+          { status: 200 },
+        );
+      }
+
+      const response = await interviewService.prepareInterviewSession(link.candidateId, link.sessionId);
+      const sessionPayload = {
+        ...response,
+        candidate: {
+          fullName: response.candidate.fullName,
+          role: response.candidate.role,
+        },
+        interviewToken: token,
+        mode: "candidate",
+        evaluations: [],
+        currentQuestion: response.firstQuestion,
+        questionHistory: [],
+      };
+
+      await interviewLinkService.markInProgress(token, response.sessionId, sessionPayload);
+
+      console.log("[Start Interview API] Response (token):", response);
+      return NextResponse.json(sessionPayload, { status: 200 });
+    }
+
+    if (typeof body.candidateId !== "string" || body.candidateId.trim() === "") {
       return NextResponse.json(
         {
           success: false,
-          error: "candidateId is required",
+          error: "candidateId or token is required",
         },
         { status: 400 },
       );

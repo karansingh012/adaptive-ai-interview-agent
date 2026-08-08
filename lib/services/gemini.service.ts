@@ -1,15 +1,34 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import type { CandidateProfile } from "@/types/candidate";
+import type { CurriculumDay } from "@/types/curriculum";
+import type { InterviewQuestionRecord } from "@/types/interview";
 import type { InterviewQuestion } from "@/types/question";
+import { ADAPTIVE_DECISION_PROMPT } from "@/lib/prompts/adaptive-decision";
 import { EVALUATION_PROMPT } from "@/lib/prompts/evaluation";
 
 const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.5-flash-lite", "gemini-3.6-flash"] as const;
 
+export type InterviewDecisionAction = "follow_up" | "next_topic" | "easier" | "harder" | "finish";
+
 export type GeminiEvaluation = {
   score: number;
+  summary: string;
   feedback: string;
   strengths: string[];
   improvements: string[];
+  missingConcepts: string[];
   confidence: number;
+};
+
+export type GeminiInterviewDecision = {
+  action: InterviewDecisionAction;
+  difficulty: "easy" | "medium" | "hard";
+  reasoning: string;
+  nextQuestion: string;
+};
+
+export type GeminiAdaptiveEvaluation = GeminiEvaluation & {
+  decision: GeminiInterviewDecision;
 };
 
 export type GeminiGeneratedQuestion = {
@@ -90,15 +109,12 @@ export class GeminiService {
       });
     }
 
-    const { model, result } = await this.generateWithFallback(apiKey, {
+const { result } = await this.generateWithFallback(apiKey, {
       contents: prompt,
       responseMimeType: "application/json",
       responseSchema: this.questionSchema(),
     });
-    console.log("[GeminiService] Question generation model succeeded:", model);
-
     const text = result.text ?? "";
-    console.log("[GeminiService] Question generation raw response:", text);
 
     if (!text.trim()) {
       throw new GeminiEvaluationError("Invalid Gemini response: Gemini returned an empty question response");
@@ -118,21 +134,58 @@ export class GeminiService {
       });
     }
 
-    const { model, result } = await this.generateWithFallback(apiKey, {
+const { result } = await this.generateWithFallback(apiKey, {
       contents: prompt,
       responseMimeType: "application/json",
       responseSchema: this.questionSchema(),
     });
-    console.log("[GeminiService] Follow-up question generation model succeeded:", model);
-
     const text = result.text ?? "";
-    console.log("[GeminiService] Follow-up question generation raw response:", text);
 
     if (!text.trim()) {
       throw new GeminiEvaluationError("Invalid Gemini response: Gemini returned an empty follow-up question response");
     }
 
     return this.normalizeGeneratedQuestion(this.parseResponse(text));
+  }
+
+  async evaluateAnswerAndDecide(input: {
+    candidate: CandidateProfile;
+    currentQuestion: InterviewQuestion;
+    mainQuestion: InterviewQuestion;
+    candidateAnswer: string;
+    currentTopic: CurriculumDay;
+    currentTopicIndex: number;
+    followUpCountForCurrentTopic: number;
+    maxFollowUpsPerTopic: number;
+    previousQuestions: InterviewQuestion[];
+    questionHistory: InterviewQuestionRecord[];
+    remainingTopics: CurriculumDay[];
+    mainTopicsCompleted: number;
+    totalCurriculumTopics: number;
+  }): Promise<GeminiAdaptiveEvaluation> {
+    const apiKey =
+      process.env.GOOGLE_GENERATIVE_AI_API_KEY ??
+      process.env.GEMINI_API_KEY;
+    const prompt = this.buildAdaptivePrompt(input);
+
+    if (!apiKey) {
+      throw new GeminiEvaluationError("Missing API key: set GOOGLE_GENERATIVE_AI_API_KEY or GEMINI_API_KEY", {
+        attemptedModels: [...GEMINI_MODELS],
+      });
+    }
+
+const { result } = await this.generateWithFallback(apiKey, {
+      contents: prompt,
+      responseMimeType: "application/json",
+      responseSchema: this.adaptiveEvaluationSchema(),
+    });
+    const text = result.text ?? "";
+
+    if (!text.trim()) {
+      throw new GeminiEvaluationError("Invalid Gemini response: Gemini returned an empty adaptive response");
+    }
+
+    return this.normalizeAdaptiveEvaluation(this.parseResponse(text));
   }
 
   async evaluateAnswer(question: InterviewQuestion, answer: string, expectedConcepts: string[]): Promise<GeminiEvaluation> {
@@ -142,50 +195,25 @@ export class GeminiService {
     const prompt = this.buildPrompt(question, answer, expectedConcepts);
 
     if (!apiKey) {
-      this.logDebugContext({
-        apiKeyExists: false,
-        question,
-        answer,
-        expectedConcepts,
-        prompt,
-      });
       throw new GeminiEvaluationError("Missing API key: set GOOGLE_GENERATIVE_AI_API_KEY or GEMINI_API_KEY", {
         attemptedModels: [...GEMINI_MODELS],
       });
     }
 
     try {
-      this.logDebugContext({
-        apiKeyExists: true,
-        question,
-        answer,
-        expectedConcepts,
-        prompt,
-      });
-
-      const { model, result } = await this.generateWithFallback(apiKey, {
+const { result } = await this.generateWithFallback(apiKey, {
         contents: prompt,
         responseMimeType: "application/json",
         responseSchema: this.evaluationSchema(),
       });
-      console.log("[GeminiService] Model succeeded:", model);
 
       const text = result.text ?? "";
-      console.log("========== STEP 9 ==========");
-      console.log("[GeminiService] Gemini raw response:", text);
 
       if (!text.trim()) {
         throw new GeminiEvaluationError("Invalid Gemini response: Gemini returned an empty response");
       }
-      const parsed = this.parseResponse(text);
-      console.log("========== STEP 10 ==========");
-      console.log("[GeminiService] Parsed JSON:", parsed);
 
-      const evaluation = this.normalizeEvaluation(parsed);
-      console.log("========== STEP 11 ==========");
-      console.log("[GeminiService] Final evaluation object:", evaluation);
-
-      return evaluation;
+      return this.normalizeEvaluation(this.parseResponse(text));
     } catch (error) {
       const diagnostics = getErrorDiagnostics(error);
       const message = this.classifyError(error, diagnostics);
@@ -231,34 +259,143 @@ export class GeminiService {
     };
   }
 
-  private buildPrompt(question: InterviewQuestion, answer: string, expectedConcepts: string[]) {
-    const basePrompt = EVALUATION_PROMPT || "You are a Senior Technical Interviewer.";
+  private buildAdaptivePrompt(input: {
+    candidate: CandidateProfile;
+    currentQuestion: InterviewQuestion;
+    mainQuestion: InterviewQuestion;
+    candidateAnswer: string;
+    currentTopic: CurriculumDay;
+    currentTopicIndex: number;
+    followUpCountForCurrentTopic: number;
+    maxFollowUpsPerTopic: number;
+    previousQuestions: InterviewQuestion[];
+    questionHistory: InterviewQuestionRecord[];
+    remainingTopics: CurriculumDay[];
+    mainTopicsCompleted: number;
+    totalCurriculumTopics: number;
+  }) {
+    const expectedConcepts = input.currentQuestion.expectedConcepts.map((concept) => concept.name);
+    const previousQuestionPrompts = input.previousQuestions.map((question) => `- ${question.prompt}`);
+    const previousEvaluations = input.questionHistory
+      .filter((record) => record.evaluation || typeof record.evaluatedScore === "number")
+      .map((record) => {
+        const score = record.evaluation?.score ?? record.evaluatedScore ?? "n/a";
+        const feedback = record.evaluation?.feedback ?? "No feedback recorded";
+        const prompt = record.question?.prompt ?? record.questionId;
+        return `- Q: ${prompt}\n  Score: ${score}\n  Feedback: ${feedback}`;
+      });
 
-    return `${basePrompt}
+    const followUpsRemaining = Math.max(0, input.maxFollowUpsPerTopic - input.followUpCountForCurrentTopic);
 
-You are evaluating a technical interview answer.
+    return `${ADAPTIVE_DECISION_PROMPT}
 
-Question:
-${question.prompt}
+${EVALUATION_PROMPT}
 
-Answer:
-${answer}
+Candidate profile:
+- fullName: ${input.candidate.fullName}
+- role: ${input.candidate.role}
+- experienceYears: ${input.candidate.experienceYears}
+
+Completed curriculum days:
+${input.candidate.completedCurriculumDays.map((day) => `- Day ${day.day}: ${day.topic} (${day.status})`).join("\n") || "- none"}
+
+Skipped curriculum days:
+${input.candidate.skippedCurriculumDays.map((day) => `- ${day}`).join("\n") || "- none"}
+
+Skill levels:
+${input.candidate.skillLevels.map((skill) => `- ${skill.area}: ${skill.level}, confidence ${Math.round(skill.confidence * 100)}%`).join("\n") || "- none"}
+
+Learning signals:
+${input.candidate.learningSignals.map((signal) => `- ${signal.type}: ${signal.value}`).join("\n") || "- none"}
+
+Current curriculum topic (index ${input.currentTopicIndex + 1} of ${input.totalCurriculumTopics}):
+- topic: ${input.currentTopic.topic}
+- learningObjectives: ${input.currentTopic.learningObjectives.join("; ")}
+- toolsUsed: ${input.currentTopic.toolsUsed.join(", ")}
+- difficulty: ${input.currentTopic.difficulty}
+
+Main question for this topic:
+${input.mainQuestion.prompt}
+
+Current question answered:
+${input.currentQuestion.prompt}
+
+Candidate answer:
+${input.candidateAnswer}
 
 Expected concepts:
 ${expectedConcepts.join(", ") || "None"}
 
+Follow-ups already used on this topic: ${input.followUpCountForCurrentTopic}
+Follow-ups remaining on this topic: ${followUpsRemaining}
+Main topics completed: ${input.mainTopicsCompleted}
+
+Remaining curriculum topics:
+${input.remainingTopics.map((topic) => `- Day ${topic.day}: ${topic.topic}`).join("\n") || "- none"}
+
+Previous questions asked (do not repeat):
+${previousQuestionPrompts.join("\n") || "- none"}
+
+Previous evaluations:
+${previousEvaluations.join("\n") || "- none"}
+
 Return STRICT JSON ONLY with this shape:
 {
   "score": 0,
+  "summary": "string — 1-2 sentence question-specific assessment",
+  "feedback": "string — same as summary or slightly expanded",
+  "strengths": ["string"],
+  "improvements": ["string"],
+  "missingConcepts": ["string — expected concepts not adequately covered"],
+  "confidence": 0.0,
+  "decision": {
+    "action": "follow_up|next_topic|easier|harder|finish",
+    "difficulty": "easy|medium|hard",
+    "reasoning": "short internal reasoning",
+    "nextQuestion": "the exact next interview question to ask"
+  }
+}
+
+Rules:
+- Score from 0 to 10.
+- Confidence from 0.0 to 1.0.
+- If follow-ups remaining is 0, do not return follow_up, easier, or harder.
+- nextQuestion must be a complete interview question, not an explanation.
+- No markdown. No text outside the JSON object.`;
+  }
+
+  private buildPrompt(question: InterviewQuestion, answer: string, expectedConcepts: string[]) {
+    const basePrompt = EVALUATION_PROMPT || "You are a Senior Technical Interviewer.";
+    const topicName = question.topic?.name ?? "General";
+    const difficulty = question.difficulty ?? "medium";
+
+    return `${basePrompt}
+
+Question (${topicName}, ${difficulty}):
+${question.prompt}
+
+Candidate answer:
+${answer}
+
+Expected concepts to assess:
+${expectedConcepts.join(", ") || "None specified"}
+
+Return STRICT JSON ONLY with this shape:
+{
+  "score": 0,
+  "summary": "string — 1-2 sentence question-specific assessment",
   "feedback": "string",
   "strengths": ["string"],
   "improvements": ["string"],
+  "missingConcepts": ["string — expected concepts not adequately covered"],
   "confidence": 0.0
 }
 
 Rules:
 - Score from 0 to 10.
 - Confidence from 0.0 to 1.0.
+- summary and feedback must reference this specific question and answer.
+- missingConcepts lists expected concepts the answer failed to cover.
 - No markdown.
 - No explanation outside the JSON object.`;
   }
@@ -276,11 +413,6 @@ Rules:
           ...(input.responseSchema ? { responseSchema: input.responseSchema } : {}),
         },
       };
-
-      console.log("========== STEP 7 ==========");
-      console.log("Gemini model", model);
-      console.log("========== STEP 8 ==========");
-      console.log("Raw Gemini request", request);
 
       try {
         const result = await ai.models.generateContent(request);
@@ -314,11 +446,12 @@ Rules:
     });
   }
 
-  private evaluationSchema() {
+  private adaptiveEvaluationSchema() {
     return {
       type: Type.OBJECT,
       properties: {
         score: { type: Type.NUMBER },
+        summary: { type: Type.STRING },
         feedback: { type: Type.STRING },
         strengths: {
           type: Type.ARRAY,
@@ -328,9 +461,54 @@ Rules:
           type: Type.ARRAY,
           items: { type: Type.STRING },
         },
+        missingConcepts: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING },
+        },
+        confidence: { type: Type.NUMBER },
+        decision: {
+          type: Type.OBJECT,
+          properties: {
+            action: {
+              type: Type.STRING,
+              enum: ["follow_up", "next_topic", "easier", "harder", "finish"],
+            },
+            difficulty: {
+              type: Type.STRING,
+              enum: ["easy", "medium", "hard"],
+            },
+            reasoning: { type: Type.STRING },
+            nextQuestion: { type: Type.STRING },
+          },
+          required: ["action", "difficulty", "reasoning", "nextQuestion"],
+        },
+      },
+      required: ["score", "confidence", "decision"],
+    };
+  }
+
+  private evaluationSchema() {
+    return {
+      type: Type.OBJECT,
+      properties: {
+        score: { type: Type.NUMBER },
+        summary: { type: Type.STRING },
+        feedback: { type: Type.STRING },
+        strengths: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING },
+        },
+        improvements: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING },
+        },
+        missingConcepts: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING },
+        },
         confidence: { type: Type.NUMBER },
       },
-      required: ["score", "feedback", "strengths", "improvements", "confidence"],
+      required: ["score", "confidence"],
     };
   }
 
@@ -387,6 +565,46 @@ Rules:
     }
   }
 
+  private normalizeAdaptiveEvaluation(parsed: unknown): GeminiAdaptiveEvaluation {
+    const evaluation = this.normalizeEvaluation(parsed);
+
+    if (!parsed || typeof parsed !== "object") {
+      throw new GeminiEvaluationError("Invalid Gemini response: expected a JSON object");
+    }
+
+    const data = parsed as Record<string, unknown>;
+    const decisionRaw = data.decision;
+
+    if (!decisionRaw || typeof decisionRaw !== "object") {
+      throw new GeminiEvaluationError("Invalid Gemini response: missing decision object");
+    }
+
+    const decision = decisionRaw as Record<string, unknown>;
+    const action = typeof decision.action === "string" ? decision.action : "";
+    const difficulty = typeof decision.difficulty === "string" ? decision.difficulty.toLowerCase() : "";
+    const allowedActions: InterviewDecisionAction[] = ["follow_up", "next_topic", "easier", "harder", "finish"];
+
+    if (
+      !allowedActions.includes(action as InterviewDecisionAction) ||
+      !["easy", "medium", "hard"].includes(difficulty) ||
+      typeof decision.reasoning !== "string" ||
+      typeof decision.nextQuestion !== "string" ||
+      !decision.nextQuestion.trim()
+    ) {
+      throw new GeminiEvaluationError("Invalid Gemini response: missing or invalid decision fields");
+    }
+
+    return {
+      ...evaluation,
+      decision: {
+        action: action as InterviewDecisionAction,
+        difficulty: difficulty as GeminiInterviewDecision["difficulty"],
+        reasoning: decision.reasoning,
+        nextQuestion: decision.nextQuestion.trim(),
+      },
+    };
+  }
+
   private normalizeEvaluation(parsed: unknown): GeminiEvaluation {
     if (!parsed || typeof parsed !== "object") {
       throw new GeminiEvaluationError("Invalid Gemini response: expected a JSON object");
@@ -396,17 +614,34 @@ Rules:
     const score = Number(data.score);
     const confidence = Number(data.confidence);
 
-    if (typeof data.feedback !== "string" || Number.isNaN(score) || Number.isNaN(confidence)) {
-      throw new GeminiEvaluationError("Invalid Gemini response: missing score, feedback, or confidence");
+    if (Number.isNaN(score)) {
+      throw new GeminiEvaluationError("Invalid Gemini response: missing or invalid score");
     }
 
+    const summary = this.extractSummary(data);
+    const feedback = typeof data.feedback === "string" && data.feedback.trim()
+      ? data.feedback.trim()
+      : summary;
+
     return {
-      score: this.clamp(score, 0, 10),
-      feedback: data.feedback,
+      score: Math.round(this.clamp(score, 0, 10) * 10) / 10,
+      summary,
+      feedback,
       strengths: this.normalizeStringArray(data.strengths),
       improvements: this.normalizeStringArray(data.improvements),
-      confidence: this.clamp(confidence, 0, 1),
+      missingConcepts: this.normalizeStringArray(data.missingConcepts),
+      confidence: Number.isNaN(confidence) ? 0.5 : this.clamp(confidence, 0, 1),
     };
+  }
+
+  private extractSummary(data: Record<string, unknown>): string {
+    if (typeof data.summary === "string" && data.summary.trim()) {
+      return data.summary.trim();
+    }
+    if (typeof data.feedback === "string" && data.feedback.trim()) {
+      return data.feedback.trim();
+    }
+    return "Evaluation completed.";
   }
 
   private normalizeGeneratedQuestion(parsed: unknown): GeminiGeneratedQuestion {
@@ -419,6 +654,7 @@ Rules:
 
     if (
       typeof data.prompt !== "string" ||
+      !data.prompt.trim() ||
       !["easy", "medium", "hard"].includes(difficulty)
     ) {
       throw new GeminiEvaluationError("Invalid Gemini response: missing prompt or difficulty");
@@ -449,24 +685,6 @@ Rules:
     }
 
     return text.slice(start, end + 1);
-  }
-
-  private logDebugContext(input: {
-    apiKeyExists: boolean;
-    question: InterviewQuestion;
-    answer: string;
-    expectedConcepts: string[];
-    prompt: string;
-  }) {
-    console.log("========== STEP 6 ==========");
-    console.log("[GeminiService] API key exists?", input.apiKeyExists);
-    console.log("[GeminiService] Project ID:", this.projectId());
-    console.log("[GeminiService] Project Number:", this.projectNumber());
-    console.log("[GeminiService] Authentication succeeds?", "pending Gemini API response");
-    console.log("[GeminiService] Question:", input.question.prompt);
-    console.log("[GeminiService] Candidate answer:", input.answer);
-    console.log("[GeminiService] Expected concepts:", input.expectedConcepts);
-    console.log("[GeminiService] Prompt sent to Gemini:", input.prompt);
   }
 
   private classifyError(error: unknown, diagnostics = getErrorDiagnostics(error)): string {

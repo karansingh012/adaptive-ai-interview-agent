@@ -31,10 +31,9 @@ export function EvaluationPanel({
   feedback = "Your answer is being evaluated.",
   strengths = [],
   improvements = [],
-  followUpQuestion,
+followUpQuestion,
   shouldAskFollowUp = false,
   onContinue,
-  isLoading = false,
 }: EvaluationPanelProps) {
   const scoreTone = getScoreTone(score);
 

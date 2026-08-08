@@ -26,14 +26,6 @@ export class QuestionGenerationService {
     }
   }
 
-  generateFallbackQuestion(
-    candidate: CandidateProfile,
-    curriculumDay: CurriculumDay,
-    previousQuestions: InterviewQuestion[] = [],
-  ): InterviewQuestion {
-    return this.buildQuestion(candidate, curriculumDay, previousQuestions, this.generateFallback(candidate, curriculumDay, previousQuestions), "fallback");
-  }
-
   async generateFollowUpQuestion(input: {
     candidate: CandidateProfile;
     curriculumDay: CurriculumDay;
@@ -45,7 +37,15 @@ export class QuestionGenerationService {
     followUpNumber: number;
   }): Promise<InterviewQuestion> {
     const prompt = this.buildFollowUpPrompt(input);
-    const generated = await geminiService.generateFollowUpQuestionJson(prompt);
+    let generated: GeminiGeneratedQuestion;
+
+    try {
+      generated = await geminiService.generateFollowUpQuestionJson(prompt);
+    } catch (error) {
+      console.warn("[QuestionGenerationService] Gemini follow-up generation failed; using fallback.", error);
+      generated = this.generateFollowUpFallback(input);
+    }
+
     const previousQuestions = input.previousRecords
       .map((record) => record.question)
       .filter((question): question is InterviewQuestion => Boolean(question));
@@ -78,6 +78,71 @@ export class QuestionGenerationService {
       questionType: "follow_up",
       parentQuestionId: input.mainQuestion.id,
       followUpCount: input.followUpNumber,
+      isAdaptive: true,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  generateFallbackQuestion(
+    candidate: CandidateProfile,
+    curriculumDay: CurriculumDay,
+    previousQuestions: InterviewQuestion[] = [],
+  ): InterviewQuestion {
+    return this.buildQuestion(candidate, curriculumDay, previousQuestions, this.generateFallback(candidate, curriculumDay, previousQuestions), "fallback");
+  }
+
+  buildAdaptiveQuestion(input: {
+    candidate: CandidateProfile;
+    curriculumDay: CurriculumDay;
+    prompt: string;
+    difficulty: GeminiGeneratedQuestion["difficulty"];
+    mainQuestion: InterviewQuestion;
+    currentQuestion: InterviewQuestion;
+    evaluation: GeminiEvaluation;
+    followUpNumber: number;
+    previousQuestions: InterviewQuestion[];
+    questionType: "main" | "follow_up";
+    action?: string;
+  }): InterviewQuestion {
+    const finalPrompt = this.ensureUniquePrompt(
+      input.prompt,
+      input.candidate,
+      input.curriculumDay,
+      input.previousQuestions,
+    );
+    const expectedConceptNames = input.evaluation.improvements.length > 0
+      ? input.evaluation.improvements
+      : input.mainQuestion.expectedConcepts.map((concept) => concept.name);
+
+    const questionType = input.questionType;
+    const idPrefix = questionType === "follow_up"
+      ? `adaptive-${input.curriculumDay.day}-followup-${input.followUpNumber}`
+      : `adaptive-${input.curriculumDay.day}-main`;
+
+    return {
+      id: `${idPrefix}-${this.hash(`${input.candidate.id}:${input.currentQuestion.id}:${finalPrompt}`)}`,
+      prompt: finalPrompt,
+      difficulty: this.mapQuestionDifficulty(input.difficulty),
+      topic: questionType === "follow_up"
+        ? input.mainQuestion.topic
+        : {
+            id: `topic-${input.curriculumDay.day}`,
+            name: input.curriculumDay.topic,
+            category: "ai-engineering",
+            description: input.curriculumDay.learningObjectives[0],
+          },
+      expectedConcepts: expectedConceptNames.map((concept, index) => ({
+        id: `concept-${input.curriculumDay.day}-adaptive-${index + 1}`,
+        name: concept,
+      })),
+      followUpSupport: {
+        enabled: true,
+        maxFollowUps: 2,
+        allowClarification: true,
+      },
+      questionType,
+      parentQuestionId: questionType === "follow_up" ? input.mainQuestion.id : undefined,
+      followUpCount: questionType === "follow_up" ? input.followUpNumber : 0,
       isAdaptive: true,
       createdAt: new Date().toISOString(),
     };
@@ -252,6 +317,27 @@ Rules:
 - Return JSON only.`;
   }
 
+  private generateFollowUpFallback(input: {
+    candidate: CandidateProfile;
+    curriculumDay: CurriculumDay;
+    mainQuestion: InterviewQuestion;
+    currentQuestion: InterviewQuestion;
+    evaluation: GeminiEvaluation;
+    followUpNumber: number;
+  }): GeminiGeneratedQuestion {
+    const improvement = input.evaluation.improvements[0];
+    const prompt = improvement
+      ? `Can you elaborate on ${improvement.toLowerCase()} when working with ${input.curriculumDay.topic}?`
+      : `Can you walk through a concrete example that demonstrates your approach to ${input.curriculumDay.topic}?`;
+
+    return {
+      prompt,
+      difficulty: this.depthToDifficulty(this.candidateDepth(input.candidate, input.curriculumDay.topic), input.curriculumDay.difficulty),
+      expectedConcepts: input.mainQuestion.expectedConcepts.map((concept) => concept.name),
+      reason: "Deterministic follow-up fallback when AI generation is unavailable.",
+    };
+  }
+
   private generateFallback(
     candidate: CandidateProfile,
     curriculumDay: CurriculumDay,
@@ -307,8 +393,10 @@ Rules:
     curriculumDay: CurriculumDay,
     previousQuestions: InterviewQuestion[],
   ) {
-    if (!this.hasSimilarPrompt(prompt, previousQuestions)) {
-      return prompt;
+    const trimmedPrompt = prompt.trim();
+
+    if (trimmedPrompt && !this.hasSimilarPrompt(trimmedPrompt, previousQuestions)) {
+      return trimmedPrompt;
     }
 
     return this.selectFallbackPrompt(candidate, curriculumDay, previousQuestions, this.candidateDepth(candidate, curriculumDay.topic));

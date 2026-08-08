@@ -19,10 +19,13 @@ export interface InterviewQuestionRecord {
     evaluatedScore?: number;
     evaluation?: {
       score: number;
+      summary?: string;
       feedback: string;
       strengths: string[];
       improvements: string[];
+      missingConcepts?: string[];
       confidence: number;
+      source?: "gemini" | "fallback";
     };
   }
 export interface InterviewSessionMetadata {
@@ -38,6 +41,32 @@ export interface InterviewState {
   totalQuestionsAsked: number;
   isAdaptiveMode: boolean;
   lastUpdatedAt: string;
+  currentTopicIndex?: number;
+  followUpCountForCurrentTopic?: number;
+  mainTopicsCompleted?: number;
+  maxTotalQuestions?: number;
+}
+
+export interface AdaptiveSessionState {
+  currentTopicIndex: number;
+  followUpCountForCurrentTopic: number;
+  totalQuestionsAsked: number;
+  mainTopicsCompleted: number;
+}
+
+export type InterviewLinkStatus = "sent" | "in_progress" | "completed";
+
+export interface InterviewLinkRecord {
+  token: string;
+  candidateId: string;
+  candidateName: string;
+  status: InterviewLinkStatus;
+  sessionId?: string;
+  activeSession?: Record<string, unknown>;
+  reportData?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
 }
 
 export interface InterviewSession {
