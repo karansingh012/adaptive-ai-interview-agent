@@ -9,6 +9,7 @@ import {
 import type { InterviewQuestion } from "../../types/question";
 import { QuestionDifficulty } from "../../types/question";
 import { InterviewSessionStatus, type InterviewSession } from "../../types/interview";
+import { geminiService } from "./gemini.service";
 
 type CandidateRecord = {
   id: string;
@@ -102,6 +103,9 @@ export class InterviewService {
     evaluation: {
       score: number;
       feedback: string;
+      strengths: string[];
+      improvements: string[];
+      confidence: number;
       followUp?: InterviewQuestion;
       isFinalQuestion: boolean;
     };
@@ -110,75 +114,59 @@ export class InterviewService {
     totalQuestions: number;
     status: InterviewSessionStatus;
   }> {
-    // Simulate session loading (in-memory or persistent store)
-    // For this mock, we'll just reconstruct a plausible session from sessionId
-    // In a real implementation, sessions would be persisted
-    const candidateId = sessionId.split("-")[1] ? `cand-${sessionId.split("-")[1]}` : "cand-unknown";
-    const candidate = await this.loadCandidate(candidateId);
+    // The candidate profile is not used during answer evaluation yet.
+    // Do not hardcode a candidate here. Candidate-specific evaluation will
+    // be added once interview sessions are persisted.
     const curriculum = await this.loadCurriculum();
     const totalQuestions = curriculum.length;
 
-    // Infer current question index from sessionId timestamp (not robust, but for mock/demo)
-    let currentQuestionIndex = 0;
-    if (sessionId.includes("q")) {
-      const match = sessionId.match(/q(\d+)/);
-      if (match) currentQuestionIndex = parseInt(match[1], 10);
-    }
-    // For demo, just increment by one
-    currentQuestionIndex = Math.min(currentQuestionIndex + 1, totalQuestions - 1);
+    // Determine the current question index from the submitted question id.
+    const match = questionId.match(/question-(\d+)/);
+    const answeredQuestionIndex = match ? parseInt(match[1], 10) - 1 : 0;
+    const nextQuestionIndex = answeredQuestionIndex + 1;
+    const currentDay = curriculum[answeredQuestionIndex];
+    const currentQuestion = this.buildFirstQuestion(currentDay);
+    const expectedConcepts = currentQuestion.expectedConcepts.map((concept) => concept.name);
 
-    // Evaluate answer (mock)
-    const score = Math.floor(Math.random() * 5) + 1;
-    const feedback = score > 3
-      ? "Great answer! You demonstrated strong understanding."
-      : "Consider elaborating more on key concepts next time.";
+    console.log("========== STEP 3 ==========");
+    console.log("Current question", currentQuestion);
+    console.log("========== STEP 4 ==========");
+    console.log("Answer", answer);
+    console.log("========== STEP 5 ==========");
+    console.log("Expected concepts", expectedConcepts);
 
-    // Follow-up logic (mock): if score < 4 and follow-ups remain, generate a follow-up
-    let followUp: InterviewQuestion | undefined = undefined;
-    const isFinalQuestion = currentQuestionIndex >= totalQuestions - 1;
-    if (score < 4 && !isFinalQuestion) {
-      const nextDay = curriculum[currentQuestionIndex];
-      followUp = {
-        id: `followup-${nextDay.day}`,
-        prompt: `Can you clarify or expand on your answer regarding ${nextDay.topic}?`,
-        difficulty: this.mapDifficulty(nextDay.difficulty),
-        topic: {
-          id: `topic-${nextDay.day}`,
-          name: nextDay.topic,
-          category: "ai-engineering",
-          description: nextDay.learningObjectives[0],
-        },
-        expectedConcepts: nextDay.learningObjectives.map((objective, index) => ({
-          id: `concept-${nextDay.day}-${index + 1}`,
-          name: objective,
-        })),
-        followUpSupport: {
-          enabled: false,
-          maxFollowUps: 0,
-          allowClarification: false,
-        },
-        isAdaptive: false,
-        createdAt: new Date().toISOString(),
-      };
-    }
+    const evaluation = await geminiService.evaluateAnswer(
+      currentQuestion,
+      answer,
+      expectedConcepts,
+    );
+
+    // Follow-up generation is disabled during sequential interview testing.
+    const followUp: InterviewQuestion | undefined = undefined;
+    const isFinalQuestion = nextQuestionIndex >= totalQuestions;
 
     // Next question logic
     let nextQuestion: InterviewQuestion | undefined = undefined;
     if (!isFinalQuestion && !followUp) {
-      const nextDay = curriculum[currentQuestionIndex];
+      const nextDay = curriculum[nextQuestionIndex];
       nextQuestion = this.buildFirstQuestion(nextDay);
     }
+
+    console.log("Returning:", nextQuestion?.id);
 
     return {
       sessionId,
       evaluation: {
-        score,
-        feedback,
+        score: evaluation.score,
+        feedback: evaluation.feedback,
+        strengths: evaluation.strengths,
+        improvements: evaluation.improvements,
+        confidence: evaluation.confidence,
         followUp,
         isFinalQuestion,
       },
       nextQuestion,
-      currentQuestionNumber: currentQuestionIndex + 1,
+      currentQuestionNumber: Math.min(nextQuestionIndex + 1, totalQuestions),
       totalQuestions,
       status: isFinalQuestion ? InterviewSessionStatus.Completed : InterviewSessionStatus.Active,
     };
