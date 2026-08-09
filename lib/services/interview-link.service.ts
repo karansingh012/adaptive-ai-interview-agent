@@ -226,6 +226,28 @@ export class InterviewLinkService {
   }
 
   sanitizeForRecruiter(link: InterviewLinkRecord) {
+    const activeSession =
+      link.activeSession && typeof link.activeSession === "object"
+        ? link.activeSession
+        : {};
+  
+    const reportData =
+      link.reportData && typeof link.reportData === "object"
+        ? link.reportData
+        : {};
+  
+    const currentQuestionNumber = Number(
+      reportData.currentQuestionNumber ??
+        activeSession.currentQuestionNumber ??
+        0,
+    );
+  
+    const totalQuestions = Number(
+      reportData.totalQuestions ??
+        activeSession.totalQuestions ??
+        8,
+    );
+  
     return {
       token: link.token,
       sessionId: link.sessionId,
@@ -235,6 +257,8 @@ export class InterviewLinkService {
       createdAt: link.createdAt,
       completedAt: link.completedAt,
       hasReport: Boolean(link.reportData),
+      currentQuestionNumber,
+      totalQuestions,
     };
   }
 

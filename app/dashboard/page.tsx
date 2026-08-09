@@ -34,6 +34,8 @@ type InterviewLinkInfo = {
   createdAt: string;
   completedAt?: string;
   hasReport: boolean;
+  currentQuestionNumber: number;
+  totalQuestions: number;
 };
 
 type CreatedInterview = {
@@ -400,26 +402,10 @@ export default function DashboardPage() {
 
               <div className="mb-10 grid gap-px overflow-hidden border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
                 {[
-                  {
-                    label: "Total Candidates",
-                    value: stats.total,
-                    icon: Users,
-                  },
-                  {
-                    label: "Avg. Learning Progress",
-                    value: `${stats.avgProgress}%`,
-                    icon: BookOpen,
-                  },
-                  {
-                    label: "Interview Candidates",
-                    value: stats.interviewCandidates,
-                    icon: BrainCircuit,
-                  },
-                  {
-                    label: "Avg. Experience",
-                    value: `${stats.avgExperience} yrs`,
-                    icon: Clock,
-                  },
+                  { label: "Total Candidates", value: stats.total, icon: Users },
+                  { label: "Avg. Learning Progress", value: `${stats.avgProgress}%`, icon: BookOpen },
+                  { label: "Interview Candidates", value: stats.interviewCandidates, icon: BrainCircuit },
+                  { label: "Avg. Experience", value: `${stats.avgExperience} yrs`, icon: Clock },
                 ].map((stat, index) => {
                   const Icon = stat.icon;
 
@@ -653,6 +639,24 @@ export default function DashboardPage() {
                             total={TOTAL_CURRICULUM_DAYS}
                           />
                         </div>
+
+                        {interviewLink ? (
+                          <div>
+                            <div className="mb-2 flex items-center justify-between text-xs text-zinc-500">
+                              <span>Interview Progress</span>
+                              <span>
+                                {interviewLink.currentQuestionNumber}/{interviewLink.totalQuestions} questions
+                              </span>
+                            </div>
+                            <ProgressBar
+                              current={interviewLink.currentQuestionNumber}
+                              total={interviewLink.totalQuestions}
+                            />
+                            <p className="mt-2 text-xs text-zinc-500">
+                              {getStatusLabel(interviewLink.status)}
+                            </p>
+                          </div>
+                        ) : null}
 
                         {selected.skills.length > 0 && (
                           <div>
