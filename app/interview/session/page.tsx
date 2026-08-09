@@ -370,7 +370,8 @@ const { ...sessionData } = data as InterviewSessionData & { success?: boolean };
                       ? "Loading interview…"
                       : loadError
                         ? "Interview unavailable"
-                        : `Question ${questionNumber} of ${totalQuestions}`}
+                        // : `Question ${questionNumber} of ${totalQuestions}`}
+                        : `Core Question ${questionNumber} of ${totalQuestions}`}
                   </p>
                   <p className="text-xs text-zinc-500">Answer thoughtfully — follow-ups may appear</p>
                 </div>

@@ -6,7 +6,11 @@ import type { InterviewQuestion } from "@/types/question";
 import { ADAPTIVE_DECISION_PROMPT } from "@/lib/prompts/adaptive-decision";
 import { EVALUATION_PROMPT } from "@/lib/prompts/evaluation";
 
-const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.5-flash-lite", "gemini-3.6-flash"] as const;
+const GEMINI_MODELS = [
+  "gemini-3.6-flash",
+  "gemini-3.5-flash-lite",
+  "gemini-2.5-flash",
+] as const;
 
 export type InterviewDecisionAction = "follow_up" | "next_topic" | "easier" | "harder" | "finish";
 
