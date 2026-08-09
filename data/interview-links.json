@@ -8068,6 +8068,856 @@
       },
       "createdAt": "2026-08-08T18:37:38.058Z",
       "updatedAt": "2026-08-08T18:39:00.004Z"
+    },
+    {
+      "token": "interview-1786267979786-q1rzx259",
+      "candidateId": "cand-001",
+      "candidateName": "Maya Chen",
+      "status": "sent",
+      "sessionId": "session-cand-001-1786267979783",
+      "activeSession": {
+        "sessionId": "session-cand-001-1786267979783",
+        "candidate": {
+          "fullName": "Maya Chen",
+          "role": "Junior ML Engineer"
+        },
+        "firstQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:32:59.784Z"
+        },
+        "currentQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:32:59.784Z"
+        },
+        "currentQuestionNumber": 1,
+        "totalQuestions": 8,
+        "sessionState": {
+          "currentTopicIndex": 0,
+          "followUpCountForCurrentTopic": 0,
+          "totalQuestionsAsked": 0,
+          "mainTopicsCompleted": 0
+        },
+        "evaluations": [],
+        "questionHistory": [],
+        "mode": "candidate"
+      },
+      "createdAt": "2026-08-09T09:32:59.786Z",
+      "updatedAt": "2026-08-09T09:32:59.786Z"
+    },
+    {
+      "token": "interview-1786267983850-clclsm4r",
+      "candidateId": "cand-001",
+      "candidateName": "Maya Chen",
+      "status": "sent",
+      "sessionId": "session-cand-001-1786267983837",
+      "activeSession": {
+        "sessionId": "session-cand-001-1786267983837",
+        "candidate": {
+          "fullName": "Maya Chen",
+          "role": "Junior ML Engineer"
+        },
+        "firstQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:03.848Z"
+        },
+        "currentQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:03.848Z"
+        },
+        "currentQuestionNumber": 1,
+        "totalQuestions": 8,
+        "sessionState": {
+          "currentTopicIndex": 0,
+          "followUpCountForCurrentTopic": 0,
+          "totalQuestionsAsked": 0,
+          "mainTopicsCompleted": 0
+        },
+        "evaluations": [],
+        "questionHistory": [],
+        "mode": "candidate"
+      },
+      "createdAt": "2026-08-09T09:33:03.850Z",
+      "updatedAt": "2026-08-09T09:33:03.850Z"
+    },
+    {
+      "token": "interview-1786267984824-torroz77",
+      "candidateId": "cand-001",
+      "candidateName": "Maya Chen",
+      "status": "sent",
+      "sessionId": "session-cand-001-1786267984814",
+      "activeSession": {
+        "sessionId": "session-cand-001-1786267984814",
+        "candidate": {
+          "fullName": "Maya Chen",
+          "role": "Junior ML Engineer"
+        },
+        "firstQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:04.822Z"
+        },
+        "currentQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:04.822Z"
+        },
+        "currentQuestionNumber": 1,
+        "totalQuestions": 8,
+        "sessionState": {
+          "currentTopicIndex": 0,
+          "followUpCountForCurrentTopic": 0,
+          "totalQuestionsAsked": 0,
+          "mainTopicsCompleted": 0
+        },
+        "evaluations": [],
+        "questionHistory": [],
+        "mode": "candidate"
+      },
+      "createdAt": "2026-08-09T09:33:04.824Z",
+      "updatedAt": "2026-08-09T09:33:04.824Z"
+    },
+    {
+      "token": "interview-1786267985421-le47psjz",
+      "candidateId": "cand-001",
+      "candidateName": "Maya Chen",
+      "status": "sent",
+      "sessionId": "session-cand-001-1786267985410",
+      "activeSession": {
+        "sessionId": "session-cand-001-1786267985410",
+        "candidate": {
+          "fullName": "Maya Chen",
+          "role": "Junior ML Engineer"
+        },
+        "firstQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:05.415Z"
+        },
+        "currentQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:05.415Z"
+        },
+        "currentQuestionNumber": 1,
+        "totalQuestions": 8,
+        "sessionState": {
+          "currentTopicIndex": 0,
+          "followUpCountForCurrentTopic": 0,
+          "totalQuestionsAsked": 0,
+          "mainTopicsCompleted": 0
+        },
+        "evaluations": [],
+        "questionHistory": [],
+        "mode": "candidate"
+      },
+      "createdAt": "2026-08-09T09:33:05.421Z",
+      "updatedAt": "2026-08-09T09:33:05.421Z"
+    },
+    {
+      "token": "interview-1786267985999-e6s6v35p",
+      "candidateId": "cand-001",
+      "candidateName": "Maya Chen",
+      "status": "sent",
+      "sessionId": "session-cand-001-1786267985989",
+      "activeSession": {
+        "sessionId": "session-cand-001-1786267985989",
+        "candidate": {
+          "fullName": "Maya Chen",
+          "role": "Junior ML Engineer"
+        },
+        "firstQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:05.992Z"
+        },
+        "currentQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:05.992Z"
+        },
+        "currentQuestionNumber": 1,
+        "totalQuestions": 8,
+        "sessionState": {
+          "currentTopicIndex": 0,
+          "followUpCountForCurrentTopic": 0,
+          "totalQuestionsAsked": 0,
+          "mainTopicsCompleted": 0
+        },
+        "evaluations": [],
+        "questionHistory": [],
+        "mode": "candidate"
+      },
+      "createdAt": "2026-08-09T09:33:05.999Z",
+      "updatedAt": "2026-08-09T09:33:05.999Z"
+    },
+    {
+      "token": "interview-1786267987943-cd3xk8y9",
+      "candidateId": "cand-001",
+      "candidateName": "Maya Chen",
+      "status": "in_progress",
+      "sessionId": "session-cand-001-1786267987934",
+      "activeSession": {
+        "sessionId": "session-cand-001-1786267987934",
+        "candidate": {
+          "fullName": "Maya Chen",
+          "role": "Junior ML Engineer"
+        },
+        "firstQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:09.778Z"
+        },
+        "currentQuestionNumber": 1,
+        "totalQuestions": 8,
+        "sessionState": {
+          "currentTopicIndex": 0,
+          "followUpCountForCurrentTopic": 0,
+          "totalQuestionsAsked": 0,
+          "mainTopicsCompleted": 0
+        },
+        "interviewToken": "interview-1786267987943-cd3xk8y9",
+        "mode": "candidate",
+        "evaluations": [],
+        "currentQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:09.778Z"
+        },
+        "questionHistory": []
+      },
+      "createdAt": "2026-08-09T09:33:07.943Z",
+      "updatedAt": "2026-08-09T09:33:09.786Z"
+    },
+    {
+      "token": "interview-1786268002166-q2sfjs7n",
+      "candidateId": "cand-001",
+      "candidateName": "Maya Chen",
+      "status": "in_progress",
+      "sessionId": "session-cand-001-1786268002152",
+      "activeSession": {
+        "sessionId": "session-cand-001-1786268002152",
+        "candidate": {
+          "fullName": "Maya Chen",
+          "role": "Junior ML Engineer"
+        },
+        "firstQuestion": {
+          "id": "question-1-fallback-1yy26yh",
+          "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-1",
+            "name": "Prompt Engineering",
+            "category": "ai-engineering",
+            "description": "Understand prompt structure and context framing"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-1-1",
+              "name": "Understand prompt structure and context framing"
+            },
+            {
+              "id": "concept-1-2",
+              "name": "Compare zero-shot and few-shot prompting"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:23.679Z"
+        },
+        "currentQuestionNumber": 2,
+        "totalQuestions": 8,
+        "sessionState": {
+          "currentTopicIndex": 1,
+          "followUpCountForCurrentTopic": 0,
+          "totalQuestionsAsked": 1,
+          "mainTopicsCompleted": 1
+        },
+        "interviewToken": "interview-1786268002166-q2sfjs7n",
+        "mode": "candidate",
+        "evaluations": [
+          {
+            "questionId": "question-1-fallback-1yy26yh",
+            "score": 2,
+            "summary": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+            "feedback": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+            "strengths": [
+              "You attempted to respond to the question."
+            ],
+            "improvements": [
+              "Expand your answer with concrete examples or steps.",
+              "Cover key ideas related to Prompt Engineering."
+            ],
+            "missingConcepts": [
+              "Understand prompt structure and context framing",
+              "Compare zero-shot and few-shot prompting"
+            ],
+            "confidence": 0.7,
+            "source": "fallback"
+          },
+          {
+            "questionId": "adaptive-1-followup-1-1qm5sng",
+            "score": 2,
+            "summary": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+            "feedback": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+            "strengths": [
+              "You attempted to respond to the question."
+            ],
+            "improvements": [
+              "Expand your answer with concrete examples or steps.",
+              "Cover key ideas related to Prompt Engineering."
+            ],
+            "missingConcepts": [
+              "Expand your answer with concrete examples or steps.",
+              "Cover key ideas related to Prompt Engineering."
+            ],
+            "confidence": 0.7,
+            "source": "fallback"
+          },
+          {
+            "questionId": "adaptive-1-followup-2-14jzbtf",
+            "score": 2,
+            "summary": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+            "feedback": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+            "strengths": [
+              "You attempted to respond to the question."
+            ],
+            "improvements": [
+              "Expand your answer with concrete examples or steps.",
+              "Cover key ideas related to Prompt Engineering."
+            ],
+            "missingConcepts": [
+              "Expand your answer with concrete examples or steps.",
+              "Cover key ideas related to Prompt Engineering."
+            ],
+            "confidence": 0.7,
+            "source": "fallback"
+          }
+        ],
+        "currentQuestion": {
+          "id": "question-2-fallback-1xuzwvs",
+          "prompt": "Suppose you are asked to build a simple workflow using Embeddings with Sentence Transformers and FAISS. How would you approach it, and how would you know it is working correctly?",
+          "difficulty": "easy",
+          "topic": {
+            "id": "topic-2",
+            "name": "Embeddings",
+            "category": "ai-engineering",
+            "description": "Explain semantic vector representations"
+          },
+          "expectedConcepts": [
+            {
+              "id": "concept-2-1",
+              "name": "Explain semantic vector representations"
+            },
+            {
+              "id": "concept-2-2",
+              "name": "Understand embedding quality and dimensionality"
+            }
+          ],
+          "followUpSupport": {
+            "enabled": true,
+            "maxFollowUps": 2,
+            "allowClarification": true
+          },
+          "questionType": "main",
+          "followUpCount": 0,
+          "isAdaptive": true,
+          "createdAt": "2026-08-09T09:33:35.608Z"
+        },
+        "questionHistory": [
+          {
+            "questionId": "question-1-fallback-1yy26yh",
+            "question": {
+              "id": "question-1-fallback-1yy26yh",
+              "prompt": "How would you use Prompt Engineering in a small, practical AI feature for a Junior ML Engineer? Walk through the steps, what you would test, and one common mistake you would avoid.",
+              "difficulty": "easy",
+              "topic": {
+                "id": "topic-1",
+                "name": "Prompt Engineering",
+                "category": "ai-engineering",
+                "description": "Understand prompt structure and context framing"
+              },
+              "expectedConcepts": [
+                {
+                  "id": "concept-1-1",
+                  "name": "Understand prompt structure and context framing"
+                },
+                {
+                  "id": "concept-1-2",
+                  "name": "Compare zero-shot and few-shot prompting"
+                }
+              ],
+              "followUpSupport": {
+                "enabled": true,
+                "maxFollowUps": 2,
+                "allowClarification": true
+              },
+              "questionType": "main",
+              "followUpCount": 0,
+              "isAdaptive": true,
+              "createdAt": "2026-08-09T09:33:23.679Z"
+            },
+            "questionType": "main",
+            "askedAt": "2026-08-09T09:33:23.679Z",
+            "followUpCount": 0,
+            "response": "gfhjlnjnlkn",
+            "candidateAnswer": "gfhjlnjnlkn",
+            "evaluatedScore": 2,
+            "evaluation": {
+              "questionId": "question-1-fallback-1yy26yh",
+              "score": 2,
+              "summary": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+              "feedback": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+              "strengths": [
+                "You attempted to respond to the question."
+              ],
+              "improvements": [
+                "Expand your answer with concrete examples or steps.",
+                "Cover key ideas related to Prompt Engineering."
+              ],
+              "missingConcepts": [
+                "Understand prompt structure and context framing",
+                "Compare zero-shot and few-shot prompting"
+              ],
+              "confidence": 0.7,
+              "source": "fallback"
+            }
+          },
+          {
+            "questionId": "adaptive-1-followup-1-1qm5sng",
+            "question": {
+              "id": "adaptive-1-followup-1-1qm5sng",
+              "prompt": "Can you elaborate on expand your answer with concrete examples or steps. in the context of Prompt Engineering?",
+              "difficulty": "medium",
+              "topic": {
+                "id": "topic-1",
+                "name": "Prompt Engineering",
+                "category": "ai-engineering",
+                "description": "Understand prompt structure and context framing"
+              },
+              "expectedConcepts": [
+                {
+                  "id": "concept-1-adaptive-1",
+                  "name": "Expand your answer with concrete examples or steps."
+                },
+                {
+                  "id": "concept-1-adaptive-2",
+                  "name": "Cover key ideas related to Prompt Engineering."
+                }
+              ],
+              "followUpSupport": {
+                "enabled": true,
+                "maxFollowUps": 2,
+                "allowClarification": true
+              },
+              "questionType": "follow_up",
+              "parentQuestionId": "question-1-fallback-1yy26yh",
+              "followUpCount": 1,
+              "isAdaptive": true,
+              "createdAt": "2026-08-09T09:33:27.643Z"
+            },
+            "questionType": "follow_up",
+            "parentQuestionId": "question-1-fallback-1yy26yh",
+            "askedAt": "2026-08-09T09:33:27.643Z",
+            "followUpCount": 1,
+            "response": "nnm'lm;",
+            "candidateAnswer": "nnm'lm;",
+            "evaluatedScore": 2,
+            "evaluation": {
+              "questionId": "adaptive-1-followup-1-1qm5sng",
+              "score": 2,
+              "summary": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+              "feedback": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+              "strengths": [
+                "You attempted to respond to the question."
+              ],
+              "improvements": [
+                "Expand your answer with concrete examples or steps.",
+                "Cover key ideas related to Prompt Engineering."
+              ],
+              "missingConcepts": [
+                "Expand your answer with concrete examples or steps.",
+                "Cover key ideas related to Prompt Engineering."
+              ],
+              "confidence": 0.7,
+              "source": "fallback"
+            }
+          },
+          {
+            "questionId": "adaptive-1-followup-2-14jzbtf",
+            "question": {
+              "id": "adaptive-1-followup-2-14jzbtf",
+              "prompt": "Suppose you are asked to build a simple workflow using Prompt Engineering with OpenAI API and LangChain. How would you approach it, and how would you know it is working correctly?",
+              "difficulty": "medium",
+              "topic": {
+                "id": "topic-1",
+                "name": "Prompt Engineering",
+                "category": "ai-engineering",
+                "description": "Understand prompt structure and context framing"
+              },
+              "expectedConcepts": [
+                {
+                  "id": "concept-1-adaptive-1",
+                  "name": "Expand your answer with concrete examples or steps."
+                },
+                {
+                  "id": "concept-1-adaptive-2",
+                  "name": "Cover key ideas related to Prompt Engineering."
+                }
+              ],
+              "followUpSupport": {
+                "enabled": true,
+                "maxFollowUps": 2,
+                "allowClarification": true
+              },
+              "questionType": "follow_up",
+              "parentQuestionId": "question-1-fallback-1yy26yh",
+              "followUpCount": 2,
+              "isAdaptive": true,
+              "createdAt": "2026-08-09T09:33:31.823Z"
+            },
+            "questionType": "follow_up",
+            "parentQuestionId": "question-1-fallback-1yy26yh",
+            "askedAt": "2026-08-09T09:33:31.823Z",
+            "followUpCount": 2,
+            "response": "nbn, b.",
+            "candidateAnswer": "nbn, b.",
+            "evaluatedScore": 2,
+            "evaluation": {
+              "questionId": "adaptive-1-followup-2-14jzbtf",
+              "score": 2,
+              "summary": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+              "feedback": "The answer was too brief to demonstrate understanding of Prompt Engineering.",
+              "strengths": [
+                "You attempted to respond to the question."
+              ],
+              "improvements": [
+                "Expand your answer with concrete examples or steps.",
+                "Cover key ideas related to Prompt Engineering."
+              ],
+              "missingConcepts": [
+                "Expand your answer with concrete examples or steps.",
+                "Cover key ideas related to Prompt Engineering."
+              ],
+              "confidence": 0.7,
+              "source": "fallback"
+            }
+          }
+        ],
+        "questionId": "adaptive-1-followup-2-14jzbtf",
+        "questionLabel": "Next topic"
+      },
+      "createdAt": "2026-08-09T09:33:22.166Z",
+      "updatedAt": "2026-08-09T09:33:35.610Z"
     }
   ]
 }

@@ -3,357 +3,533 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
+  ArrowDown,
   ArrowRight,
   BrainCircuit,
-  ChartNoAxesCombined,
+  Check,
+  ChevronRight,
   Cpu,
-  GitBranch,
-  LayoutDashboard,
-  Lightbulb,
   MessageSquareText,
+  Monitor,
+  Palette,
   Play,
-  ShieldCheck,
   Sparkles,
+  Target,
+  Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const features = [
   {
-    title: "Adaptive Interview",
-    description: "Dynamic conversation paths that respond to each answer in real time.",
+    number: "01",
+    title: "Adaptive",
+    description:
+      "The AI changes the next question based on how you answer.",
     icon: BrainCircuit,
   },
   {
-    title: "AI Evaluation",
-    description: "Structured scoring and coaching feedback built for technical interviews.",
+    number: "02",
+    title: "Intelligent",
+    description:
+      "Evaluate technical depth, reasoning, confidence and clarity.",
     icon: Cpu,
   },
   {
-    title: "Follow-up Questions",
-    description: "Deeper probing prompts that uncover confidence and reasoning quality.",
-    icon: MessageSquareText,
-  },
-  {
-    title: "Personalized Report",
-    description: "A polished summary of strengths, gaps, and next-step recommendations.",
-    icon: ChartNoAxesCombined,
-  },
-  {
-    title: "Curriculum Based",
-    description: "Structured interview flows aligned with modern AI engineering topics.",
-    icon: GitBranch,
-  },
-  {
-    title: "Gemini Powered",
-    description: "Intelligent feedback experiences powered by advanced language models.",
-    icon: Sparkles,
+    number: "03",
+    title: "Personal",
+    description:
+      "Every interview is shaped around the candidate's learning history.",
+    icon: Target,
   },
 ];
 
 const steps = [
-  "Select Candidate",
-  "AI Starts Interview",
-  "Answer Questions",
-  "Receive AI Evaluation",
-  "Generate Report",
+  "Select a candidate",
+  "AI analyzes their profile",
+  "Interview begins",
+  "Questions adapt in real time",
+  "Receive your evaluation",
 ];
+function FeatureCard({
+  title,
+  description,
+  icon,
+  gradient,
+  delay,
+}: {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  gradient: string;
+  delay: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{
+        duration: 0.8,
+        ease: "easeOut",
+        delay,
+      }}
+      whileHover={{
+        y: -8,
+        scale: 1.02,
+      }}
+      className="group relative mx-auto flex w-full max-w-[260px] flex-col items-start justify-start md:max-w-[300px]"
+    >
+      {/* GLOW */}
+      <div
+        className="pointer-events-none absolute h-[260px] w-full rounded-[40px] opacity-60 md:h-[300px]"
+        style={{
+          background: gradient,
+          filter: "blur(45px)",
+        }}
+      />
 
-const reasons = [
-  {
-    title: "Adaptive Difficulty",
-    description: "Experience interview pacing that adjusts to the candidate’s level.",
-  },
-  {
-    title: "Real-time Feedback",
-    description: "Get immediate guidance that keeps momentum high and learning sharp.",
-  },
-  {
-    title: "Technical Evaluation",
-    description: "Assess clarity, depth, and correctness across critical concepts.",
-  },
-  {
-    title: "Professional Reports",
-    description: "Deliver polished insights that feel enterprise-ready and polished.",
-  },
-  {
-    title: "Interview Analytics",
-    description: "Track progress, confidence, and progression over time with ease.",
-  },
-  {
-    title: "Modern AI Experience",
-    description: "Enjoy a premium interface designed for speed and clarity.",
-  },
-];
+      {/* CARD */}
+      <div
+        className="relative z-10 h-[260px] w-full overflow-hidden rounded-[40px] border-[8px] border-transparent shadow-[0_20px_80px_rgba(0,0,0,0.35)] transition-all duration-500 group-hover:shadow-[0_25px_100px_rgba(255,255,255,0.08)] md:h-[300px]"
+        style={{
+          background: `linear-gradient(#1A1A1C, #1A1A1C) padding-box, ${gradient} border-box`,
+        }}
+      >
+        {/* INNER GLOW */}
+        <div
+          className="pointer-events-none absolute -right-20 -top-20 h-40 w-40 rounded-full opacity-20 blur-3xl transition-opacity duration-500 group-hover:opacity-40"
+          style={{
+            background: gradient,
+          }}
+        />
+
+        {/* CONTENT */}
+        <div className="relative flex h-full w-full flex-col justify-between p-7">
+          <div className="text-white/90 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+            {icon}
+          </div>
+
+          <div>
+            <h3 className="mb-3 text-xl font-medium tracking-tight text-white">
+              {title}
+            </h3>
+
+            <p className="text-[14px] font-normal leading-[1.6] text-gray-400">
+              {description}
+            </p>
+          </div>
+        </div>
+
+        {/* SHINE */}
+        <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+      </div>
+    </motion.div>
+  );
+}
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#09090B] text-white">
-      <main className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.28),_transparent_35%),radial-gradient(circle_at_80%_20%,_rgba(34,197,94,0.16),_transparent_28%)]" />
+    <main className="relative min-h-screen overflow-hidden bg-[#070707] text-[#f4f3ee]">
+      {/* BACKGROUND */}
 
-        <header className="relative border-b border-white/10 bg-[#09090B]/80 backdrop-blur-md">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-            <Link href="/" className="flex items-center gap-2.5 text-sm font-semibold text-zinc-100">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-300">
-                <Sparkles className="h-4 w-4" />
-              </span>
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-[#070707]" />
+
+        <div className="absolute -left-60 -top-60 h-[650px] w-[650px] rounded-full bg-lime-400/10 blur-[160px]" />
+
+        <div className="absolute right-[-250px] top-[25%] h-[650px] w-[650px] rounded-full bg-lime-300/10 blur-[180px]" />
+
+        <div className="absolute left-[40%] top-[70%] h-[300px] w-[300px] rounded-full bg-yellow-300/10 blur-[120px]" />
+      </div>
+
+      {/* NAVBAR */}
+
+      <header className="relative z-50 border-b border-white/10 bg-black/40 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 sm:px-8">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+              <Sparkles className="h-4 w-4 text-lime-300" />
+            </div>
+
+            <span className="display-font text-sm font-bold uppercase tracking-tight">
               Intervu AI
-            </Link>
-            <nav className="hidden items-center gap-8 text-sm text-zinc-400 md:flex">
-              <Link href="/dashboard" className="transition hover:text-white">
-                Dashboard
-              </Link>
-              <a href="#features" className="transition hover:text-white">
-                Features
-              </a>
-              <a href="#how-it-works" className="transition hover:text-white">
-                How it works
-              </a>
-              <a href="#why" className="transition hover:text-white">
-                Why Intervu AI
-              </a>
-            </nav>
-            <Button
-              asChild
-              size="sm"
-              className="rounded-lg bg-indigo-500 px-4 text-sm font-medium text-white hover:bg-indigo-400"
-            >
-              <Link href="/dashboard">
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard
-              </Link>
-            </Button>
-          </div>
-        </header>
+            </span>
+          </Link>
 
-        <section className="relative px-4 py-10 sm:px-8 sm:py-14 lg:px-8 lg:py-16">
-          <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
+          <nav className="hidden items-center gap-8 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 md:flex">
+            <a href="#features" className="transition hover:text-white">
+              Features
+            </a>
+
+            <a href="#process" className="transition hover:text-white">
+              Process
+            </a>
+
+            <a href="#why" className="transition hover:text-white">
+              Why AI
+            </a>
+          </nav>
+
+          <Link
+            href="/dashboard"
+            className="cursor-glow flex items-center gap-2 rounded-full bg-lime-300 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition hover:bg-lime-200"
+          >
+            Start Interview
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </header>
+
+      {/* HERO */}
+
+      <section className="relative z-10 flex min-h-[calc(100vh-64px)] items-center px-5 py-20 sm:px-8">
+        <div className="mx-auto grid w-full max-w-[1400px] items-center gap-16 lg:grid-cols-[1.1fr_0.9fr]">
+          <div>
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="max-w-2xl"
+              transition={{ duration: 0.7 }}
             >
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-200">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Premium AI interview experience
-              </div>
-              <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
-                Adaptive AI Interview Agent
-              </h1>
-              <p className="mt-4 text-base leading-7 text-zinc-400 sm:text-lg">
-                Practice technical interviews powered by AI. Receive adaptive follow-up questions, instant evaluation, personalized feedback, and a complete interview report.
-              </p>
+              <div className="mb-8 flex items-center gap-3">
+                <span className="h-px w-10 bg-lime-300" />
 
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button
-                  asChild
-                  className="rounded-xl bg-indigo-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400"
+                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-lime-300">
+                  Adaptive AI Interview Agent
+                </span>
+              </div>
+
+              <h1 className="display-font text-[16vw] font-bold uppercase leading-[0.75] tracking-[-0.09em] sm:text-[12vw] lg:text-[9.3rem]">
+                Prepare.
+                <br />
+
+                <span className="gradient-text">Perform.</span>
+                <br />
+
+                <span
+                  className="text-transparent"
+                  style={{
+                    WebkitTextStroke: "1px rgba(244,243,238,.8)",
+                  }}
                 >
-                  <Link href="/dashboard">
-                    Open Interview Dashboard
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <button
-                  type="button"
-                  onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-zinc-300 transition hover:bg-white/10"
+                  Improve.
+                </span>
+              </h1>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.7 }}
+                className="mt-10 max-w-xl text-base leading-7 text-zinc-500 sm:text-lg"
+              >
+                Technical interviews that think with you. Practice with an AI
+                agent that adapts questions to your knowledge, reasoning and
+                confidence.
+              </motion.p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/dashboard"
+                  className="cursor-glow group inline-flex items-center justify-center gap-3 bg-lime-300 px-7 py-4 text-xs font-black uppercase tracking-[0.15em] text-black transition hover:bg-lime-200"
+                >
+                  Start Interview
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+
+                <a
+                  href="#process"
+                  className="inline-flex items-center justify-center gap-3 border border-white/10 bg-white/[0.03] px-7 py-4 text-xs font-bold uppercase tracking-[0.15em] text-zinc-300 transition hover:bg-white/[0.07]"
                 >
                   <Play className="h-3.5 w-3.5" />
-                  Learn how it works
-                </button>
-              </div>
-
-              <div className="mt-6 flex flex-wrap gap-2 text-xs text-zinc-400">
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Adaptive follow-ups</span>
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Instant scoring</span>
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Structured reports</span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
-              className="relative"
-            >
-              <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-indigo-500/30 via-transparent to-emerald-400/20 blur-3xl" />
-              <div className="relative rounded-[2rem] border border-white/10 bg-zinc-950/80 p-4 shadow-[0_30px_80px_rgba(0,0,0,0.4)] backdrop-blur-xl sm:p-6">
-                <div className="absolute left-6 top-6 h-20 w-20 rounded-full bg-indigo-500/25 blur-2xl" />
-                <div className="absolute bottom-8 right-10 h-24 w-24 rounded-full bg-emerald-400/20 blur-2xl" />
-                <div className="relative rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-zinc-900 to-zinc-950 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-zinc-400">Live interview session</p>
-                      <p className="mt-1 text-lg font-semibold text-white">AI assistant ready</p>
-                    </div>
-                    <div className="rounded-full bg-emerald-500/15 px-3 py-1 text-sm text-emerald-300">
-                      Online
-                    </div>
-                  </div>
-
-                  <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500/20 text-indigo-300">
-                        <BrainCircuit className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-white">Prompt engineering</p>
-                        <p className="text-sm text-zinc-400">Explain your reasoning clearly.</p>
-                      </div>
-                    </div>
-                    <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-xl border border-white/10 bg-zinc-900/70 p-3 text-sm text-zinc-300">
-                        <p className="font-medium text-white">Adaptive depth</p>
-                        <p className="mt-1 text-zinc-400">Probing follow-ups when needed</p>
-                      </div>
-                      <div className="rounded-xl border border-white/10 bg-zinc-900/70 p-3 text-sm text-zinc-300">
-                        <p className="font-medium text-white">Instant synthesis</p>
-                        <p className="mt-1 text-zinc-400">Feedback and next steps</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  See how it works
+                </a>
               </div>
             </motion.div>
           </div>
-        </section>
 
-        <section id="features" className="relative px-4 py-12 sm:px-8 sm:py-16 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="max-w-2xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-300">Features</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Built for modern AI interview preparation.
-              </h2>
-            </div>
-            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <motion.article
-                    key={feature.title}
-                    initial={{ opacity: 0, y: 18 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{ duration: 0.4, delay: index * 0.06 }}
-                    whileHover={{ y: -6, scale: 1.01 }}
-                    className="flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)]"
-                  >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-300">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="mt-4 text-lg font-semibold text-white">{feature.title}</h3>
-                    <p className="mt-2 flex-1 text-sm leading-6 text-zinc-400">{feature.description}</p>
-                  </motion.article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+          {/* HERO AI OBJECT */}
 
-        <section id="how-it-works" className="relative px-4 py-12 sm:px-8 sm:py-16 lg:px-8">
-          <div className="mx-auto max-w-7xl rounded-[2rem] border border-white/10 bg-zinc-950/60 p-6 shadow-[0_20px_80px_rgba(0,0,0,0.25)] sm:p-10 lg:p-12">
-            <div className="max-w-2xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-300">How it works</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                A simple journey from interview kickoff to insight.
-              </h2>
-            </div>
-            <div className="mt-10 grid gap-4 lg:grid-cols-5">
-              {steps.map((step, index) => (
-                <div key={step} className="flex items-center gap-4 lg:flex-col lg:items-start">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-indigo-500/20 text-sm font-semibold text-indigo-200">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 lg:flex-none">
-                    <p className="text-base font-semibold text-white">{step}</p>
-                    {index < steps.length - 1 ? <p className="mt-2 text-sm text-zinc-500">↓</p> : null}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="relative mx-auto w-full max-w-[500px]"
+          >
+            <div className="float-card relative aspect-square">
+              <div className="absolute inset-[12%] rounded-full bg-lime-400/10 blur-[70px]" />
 
-        <section id="why" className="relative px-4 py-12 sm:px-8 sm:py-16 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="max-w-2xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-300">Why Intervu AI</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Designed to make practice feel premium, focused, and insightful.
-              </h2>
-            </div>
-            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {reasons.map((reason, index) => (
-                <motion.div
-                  key={reason.title}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className="flex h-full flex-col rounded-2xl border border-white/10 bg-zinc-900/70 p-5"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300">
-                    <Lightbulb className="h-5 w-5" />
-                  </div>
-                  <h3 className="mt-4 text-lg font-semibold text-white">{reason.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-zinc-400">{reason.description}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
+              <div className="absolute inset-[17%] rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-3xl" />
 
-        <section id="cta" className="relative px-4 pb-16 sm:px-8 sm:pb-20 lg:px-8">
-          <div className="mx-auto max-w-7xl rounded-[2rem] border border-indigo-400/20 bg-gradient-to-br from-indigo-500/15 via-zinc-900/80 to-emerald-500/10 p-6 shadow-[0_20px_80px_rgba(99,102,241,0.16)] sm:p-10 lg:p-12">
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-2xl">
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-200">Ready to begin</p>
-                <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                  Ready to test your skills?
-                </h2>
-                <p className="mt-4 text-lg text-zinc-400">
-                  Step into an experience crafted to feel sharp, modern, and genuinely useful.
+              <div className="absolute inset-[25%] rounded-full border border-lime-400/20 bg-lime-400/[0.04]" />
+
+              <motion.div
+                animate={{
+                  rotate: 360,
+                }}
+                transition={{
+                  duration: 20,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+                className="absolute inset-[10%] rounded-full border border-dashed border-lime-300/20"
+              />
+
+              <motion.div
+                animate={{
+                  rotate: -360,
+                }}
+                transition={{
+                  duration: 14,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+                className="absolute inset-[31%] rounded-full border border-dashed border-yellow-300/20"
+              />
+
+              <div className="absolute left-1/2 top-1/2 flex h-28 w-28 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-gradient-to-br from-lime-300 to-lime-500 shadow-[0_0_100px_rgba(190,242,100,.35)]">
+                <BrainCircuit className="h-12 w-12 text-black" />
+              </div>
+
+              <div className="absolute left-[5%] top-[30%] border border-white/10 bg-black/60 px-4 py-3 backdrop-blur-xl">
+                <p className="text-[8px] uppercase tracking-widest text-zinc-600">
+                  Adaptive
+                </p>
+                <p className="mt-1 text-xs font-bold">Difficulty ↑</p>
+              </div>
+
+              <div className="absolute bottom-[22%] right-[2%] border border-white/10 bg-black/60 px-4 py-3 backdrop-blur-xl">
+                <p className="text-[8px] uppercase tracking-widest text-zinc-600">
+                  AI Score
+                </p>
+                <p className="mt-1 text-xs font-bold text-lime-300">
+                  92 / 100
                 </p>
               </div>
-              <Button
-                asChild
-                className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-100"
-              >
-                <Link href="/dashboard">
-                  Open Dashboard
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
             </div>
-          </div>
-        </section>
-      </main>
+          </motion.div>
+        </div>
 
-      <footer className="border-t border-white/10 bg-[#09090B] px-4 py-8 sm:px-8 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-300">
-              <Sparkles className="h-4 w-4" />
-            </span>
-            <div>
-              <p className="font-semibold text-white">Intervu AI</p>
-              <p className="text-sm text-zinc-500">Made for Hackathon</p>
+        <a
+          href="#features"
+          className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-[8px] font-bold uppercase tracking-[0.25em] text-zinc-600"
+        >
+          Scroll
+          <ArrowDown className="h-4 w-4 animate-bounce" />
+        </a>
+      </section>
+
+      {/* MARQUEE */}
+
+      <div className="relative z-10 overflow-hidden border-y border-white/10 py-5">
+        <div className="marquee">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="flex items-center">
+              {[
+                "ADAPTIVE INTERVIEWS",
+                "AI EVALUATION",
+                "REAL-TIME FOLLOW UPS",
+                "PERSONALIZED FEEDBACK",
+              ].map((text) => (
+                <div key={text} className="mx-8 flex items-center gap-8">
+                  <span className="display-font text-xl font-bold uppercase tracking-tight text-zinc-700 sm:text-3xl">
+                    {text}
+                  </span>
+                  <span className="text-lime-300">✦</span>
+                </div>
+              ))}
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* FEATURES */}
+
+      <section
+        id="features"
+        className="relative z-10 px-5 py-28 sm:px-8 lg:py-40"
+      >
+        <div className="mx-auto max-w-[1400px]">
+          <div className="mb-16 grid gap-8 lg:grid-cols-2">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-lime-300">
+                01 — Intelligence
+              </p>
+
+              <h2 className="display-font mt-5 text-5xl font-bold uppercase leading-[0.85] tracking-[-0.07em] sm:text-7xl">
+                Interviews
+                <br />
+                that <span className="gradient-text">adapt.</span>
+              </h2>
+            </div>
+
+            <p className="max-w-md self-end text-sm leading-7 text-zinc-500">
+              Forget static question lists. Intervu AI analyzes the candidate
+              and continuously adjusts the conversation.
+            </p>
           </div>
-          <div className="flex flex-wrap items-center gap-5 text-sm text-zinc-400">
-            <a href="https://github.com" target="_blank" rel="noreferrer" className="flex items-center gap-2 transition hover:text-white">
-              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65 5.65 0 12 0c5.65 0 10.25 4.6 10.25 10.25 0 4.55-2.95 8.4-7.03 9.76-.52.1-.72-.22-.72-.49v-1.7c0-.66-.02-1.24-.03-1.76-2.86.62-3.46-1.23-3.46-1.23-.47-1.2-1.15-1.52-1.15-1.52-.94-.64.07-.63.07-.63 1.04.07 1.58 1.06 1.58 1.06.92 1.58 2.42 1.12 3.01.86.09-.67.36-1.12.66-1.38-2.28-.26-4.68-1.14-4.68-5.08 0-1.12.4-2.03 1.06-2.75-.11-.26-.46-1.31.1-2.73 0 0 .87-.28 2.84 1.05a9.89 9.89 0 0 1 5.17 0c1.97-1.33 2.84-1.05 2.84-1.05.56 1.42.21 2.47.1 2.73.66.72 1.06 1.63 1.06 2.75 0 3.95-2.41 4.82-4.71 5.07.37.32.7.95.7 1.92v2.84c0 .27-.2.6-.72.49A10.26 10.26 0 0 1 1.75 12.75C1.75 5.65 6.35.5 12 .5Z"/></svg>
-              GitHub
-            </a>
-            <a href="#" className="transition hover:text-white">
-              Privacy
-            </a>
+
+          <div className="relative grid w-full grid-cols-1 gap-10 md:grid-cols-3 md:gap-3 lg:gap-3">
+  <FeatureCard
+    title="Adaptive AI"
+    description="Every answer changes what comes next. Your interview adapts to your knowledge, confidence, and reasoning."
+    icon={<Monitor size={32} strokeWidth={2.5} />}
+    delay={0.1}
+    gradient="linear-gradient(137deg, #84CC16 0%, #BEF264 45%, #FDE047 100%)"
+  />
+
+  <FeatureCard
+    title="Smart Evaluation"
+    description="AI evaluates your technical answers, communication, reasoning, and depth with structured feedback."
+    icon={<Palette size={32} strokeWidth={2.5} />}
+    delay={0.2}
+    gradient="linear-gradient(137deg, #FFFFFF 0%, #D9F99D 45%, #A3E635 100%)"
+  />
+
+  <FeatureCard
+    title="Live Insights"
+    description="Turn every interview into actionable insights with personalized reports and recommendations."
+    icon={<Zap size={32} strokeWidth={2.5} />}
+    delay={0.3}
+    gradient="linear-gradient(137deg, #365314 0%, #BEF264 45%, #FDE047 100%)"
+            />
           </div>
         </div>
+      </section>
+
+      {/* PROCESS */}
+
+      <section
+        id="process"
+        className="relative z-10 border-y border-white/10 px-5 py-28 sm:px-8 lg:py-40"
+      >
+        <div className="mx-auto max-w-[1400px]">
+          <div className="mb-20">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-lime-300">
+              02 — Process
+            </p>
+
+            <h2 className="display-font mt-5 max-w-4xl text-5xl font-bold uppercase leading-[0.85] tracking-[-0.07em] sm:text-7xl">
+              From candidate
+              <br />
+              to <span className="gradient-text">insight.</span>
+            </h2>
+          </div>
+
+          <div>
+            {steps.map((step, index) => (
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.08 }}
+                className="group flex items-center gap-6 border-t border-white/10 py-7"
+              >
+                <span className="text-xs font-bold text-lime-300">
+                  0{index + 1}
+                </span>
+
+                <h3 className="display-font text-2xl font-bold uppercase tracking-[-0.04em] transition group-hover:translate-x-3 sm:text-4xl">
+                  {step}
+                </h3>
+
+                <ArrowRight className="ml-auto h-5 w-5 text-zinc-700 transition group-hover:translate-x-2 group-hover:text-lime-300" />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* WHY */}
+
+      <section
+        id="why"
+        className="relative z-10 px-5 py-28 sm:px-8 lg:py-40"
+      >
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid items-center gap-16 lg:grid-cols-2">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-lime-300">
+                03 — Why Intervu
+              </p>
+
+              <h2 className="display-font mt-6 text-6xl font-bold uppercase leading-[0.8] tracking-[-0.08em] sm:text-8xl">
+                Not just
+                <br />
+                another
+                <br />
+                <span className="gradient-text">quiz.</span>
+              </h2>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                "Questions respond to candidate answers.",
+                "Difficulty adjusts automatically.",
+                "Technical reasoning is evaluated.",
+                "Every session generates actionable feedback.",
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center gap-4 border-b border-white/10 py-5"
+                >
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-lime-400/10">
+                    <Check className="h-3.5 w-3.5 text-lime-300" />
+                  </div>
+
+                  <span className="text-sm text-zinc-400">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+
+      <section className="relative z-10 px-5 pb-24 sm:px-8 lg:pb-32">
+        <div className="mx-auto max-w-[1400px] overflow-hidden border border-white/10 bg-[#f4f3ee] text-black">
+          <div className="relative p-8 sm:p-14 lg:p-20">
+            <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-lime-300/30 blur-[100px]" />
+
+            <div className="relative max-w-4xl">
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">
+                Ready?
+              </p>
+
+              <h2 className="display-font mt-5 text-6xl font-bold uppercase leading-[0.8] tracking-[-0.08em] sm:text-8xl lg:text-[9rem]">
+                Start
+                <br />
+                interviewing.
+              </h2>
+
+              <Link
+                href="/dashboard"
+                className="cursor-glow mt-10 inline-flex items-center gap-3 bg-black px-7 py-4 text-xs font-black uppercase tracking-[0.15em] text-white transition hover:bg-lime-300 hover:text-black"
+              >
+                Open Dashboard
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+
+      <footer className="relative z-10 border-t border-white/10 px-5 py-8 sm:px-8">
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <Sparkles className="h-4 w-4 text-lime-300" />
+
+            <span className="text-xs font-bold uppercase tracking-widest">
+              Intervu AI
+            </span>
+          </div>
+
+          <p className="text-[9px] uppercase tracking-widest text-zinc-700">
+            Adaptive AI Interview Agent · 2026
+          </p>
+        </div>
       </footer>
-    </div>
+    </main>
   );
 }
